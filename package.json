@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/PureGero/SportSelection/issues"
   },
-  "homepage": "https://github.com/PureGero/SportSelection#readme"
+  "homepage": "https://github.com/PureGero/SportSelection#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
 }
