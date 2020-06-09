@@ -3,7 +3,6 @@ const os = require("os");
 const cluster = require("cluster");
 
 const PORT = 3000;
-const DATABASE_PORT = 3001;
 
 const clusterWorkerSize = os.cpus().length;
 
@@ -22,7 +21,6 @@ if (cluster.isMaster) {
     })
     
     // TODO Insert database server here
-    console.log(`Database server listening on port ${DATABASE_PORT} and worker ${process.pid}`);
     
 } else {
     const app = express();
