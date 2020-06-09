@@ -1,0 +1,19 @@
+{
+  "name": "sportselection",
+  "version": "1.0.0",
+  "description": "A nodejs web application allowing users to select their sport",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PureGero/SportSelection.git"
+  },
+  "author": "PureGero",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/PureGero/SportSelection/issues"
+  },
+  "homepage": "https://github.com/PureGero/SportSelection#readme"
+}
