@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+    <head>
+    
+        <title>Sport Selection</title>
+        
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        
+        <link rel="stylesheet" type="text/css" href="index.css" />
+        
+        <script src="jquery-3.4.1.min.js"></script>
+        <script src="index.js"></script>
+        
+    </head>
+    
+    <body class="login__page">
+    
+        <div class="background__container">
+            <div class="background"></div>
+        </div>
+        
+        <!--div class="login__container login__container--selection"-->
+        
+        <div class="login__container" aria-live="polite">
+            <form method="POST" action="login" onsubmit="return login()">
+                <p class="login__title">Sport Selection</p>
+                <p class="login__error" aria-live="polite"></p>
+                <input class="login__input" type="text" name="username" aria-label="Username" placeholder="Username" autofocus />
+                <input class="login__input" type="password" name="password" aria-label="Password" placeholder="Password" />
+                <input class="login__input login__input--button" type="submit" aria-label="Login Button" value="Login" />
+            </form>
+        </div>
+        
+        <footer aria-hidden="true">
+            Made by Ethan Bulmer 2020
+        </footer>
+        
+    </body>
+</html>

@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/PureGero/SportSelection#readme",
   "dependencies": {
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "ldapauth-fork": "^4.3.3"
   }
 }

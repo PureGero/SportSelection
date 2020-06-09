@@ -1,6 +1,7 @@
 const express = require('express');
-const os = require("os");
-const cluster = require("cluster");
+const os = require('os');
+const cluster = require('cluster');
+const path = require('path');
 
 const PORT = 3000;
 
@@ -21,20 +22,21 @@ if (cluster.isMaster) {
     })
     
     // TODO Insert database server here
+    console.log(`Database server on master ${process.pid}`);
     
 } else {
     const app = express();
     
     let callbacks = {};
     
-    process.on('message', function(msg) {
+    process.on('message', msg => {
         let callback = callbacks[msg.id];
         if (callback) {
             callback(msg);
         }
     });
 
-    app.get('/', (req, res) => res.send('Hello World!'));
+    //app.get('/', (req, res) => res.send('Hello World!'));
 
     app.get('/clustertest', (req, res) => {
         let id = Math.random();
@@ -42,9 +44,11 @@ if (cluster.isMaster) {
             res.send(msg.string);
         };
         process.send({id: id, string: 'Hello'});
-    })
+    });
+    
+    app.use(express.static(path.join(__dirname, 'public')));
  
-    app.listen(PORT, function () {
+    app.listen(PORT, () => {
         console.log(`Express server listening on port ${PORT} and worker ${process.pid}`);
-    })
+    });
 }

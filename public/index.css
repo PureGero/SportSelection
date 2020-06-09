@@ -1,0 +1,181 @@
+:root {
+  --dark-color: #1d47ec;
+  --light-color: #2679ff;
+}
+
+html, body {
+    box-sizing: border-box;
+    display: flex;
+    font-family: Arial, sans-serif;
+    justify-content: center;
+    margin: 0;
+    min-height: 100%;
+    padding: 0;
+    width: 100%;
+}
+
+/* Background */
+
+.background__container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+    z-index: -1;
+}
+
+.background {
+    width: calc(100% + 20px);
+    height: calc(100% + 20px);
+    background: url('background.jpg') no-repeat center/cover;
+    filter: blur(5px);
+    margin: -10px;
+}
+
+/* Login */
+
+.login__container {
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 72px 20px 36px;
+    text-align: center;
+}
+
+.login__title {
+    color: var(--dark-color);
+    display: inline-block;
+    font-size: 32px;
+    margin: 0 auto 10px;
+    text-transform: uppercase;
+    user-select: none;
+}
+
+.login__subtitle {
+    margin-top: -5px;
+    margin-bottom: 25px;
+}
+
+.login__endtitle {
+    margin-top: 25px;
+}
+
+.login__error {
+    color: #C22;
+    display: inline-block;
+    font-size: 18px;
+    height: 20px;
+    margin: 0 0 10px;
+}
+
+.login__input, .selection__button {
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+    display: inline-block;
+    font-size: 18px;
+    margin: 12px auto;
+    outline: none;
+    padding: 16px 18px;
+    transition-duration: 0.1s;
+    width: 100%;
+}
+
+.login__input:focus, .selection__button:focus {
+    border: 1px solid var(--light-color);
+    box-shadow: 0 0 0 1px var(--light-color);
+}
+
+.login__input--button {
+    background-color: var(--dark-color);
+    color: white;
+    transition-duration: 0.3s;
+}
+
+.login__input--button:hover, .login__input--button:focus {
+    background-color: var(--light-color);
+    cursor: pointer;
+}
+
+@media only screen and (min-width: 500px) {
+    body {
+        padding: 100px 25px;
+    }
+
+    .login__page {
+        align-items: center;
+    }
+
+    .login__container{
+        border-radius: 8px;
+        height: auto;
+        /*margin-top: -240px;*/
+        min-height: auto;
+        padding: 48px 40px 36px;
+        transition-duration: 1s;
+        width: 300px;
+    }
+}
+
+/* Sport Selection */
+
+.selection__button {
+    color: black;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    text-align: left;
+    text-decoration: none;
+    transition-duration: 0.3s;
+}
+
+.selection__button:hover {
+    background-color: var(--dark-color);
+    color: white;
+}
+
+.selection__button--selected, .selection__button--selected:hover {
+    background-color: var(--light-color);
+    color: white;
+    cursor: initial;
+}
+
+.selection__button--full, .selection__button--full:hover {
+    background-color: #CCC;
+    color: #555;
+    cursor: initial;
+}
+
+.selection__status {
+    flex-shrink: 0;
+    font-size: 16px;
+    margin-left: 10px;
+}
+
+.login__container--selection {
+    flex-grow: 1;
+    height: auto;
+}
+
+@media only screen and (min-width: 500px) {
+    .login__container--selection {
+        max-width: 600px;
+        width: 600px;
+    }
+}
+
+footer {
+    bottom: 0;
+    color: white;
+    font-size: 12px;
+    margin: 6px;
+    position: fixed;
+    right: 0;
+}
+
+.admin-link {
+    display: block;
+    margin-top: -20px;
+    margin-bottom: 20px;
+}
