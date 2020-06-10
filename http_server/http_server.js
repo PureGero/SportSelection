@@ -17,10 +17,10 @@ class HttpServer {
     }
     
     setupDatabaseConnection() {
-        process.on('message', msg => {
-            let callback = this.callbacks[msg.id];
+        process.on('message', json => {
+            let callback = this.callbacks[json.__id];
             if (callback) {
-                callback(msg);
+                callback(json);
             }
         });
     }
@@ -34,12 +34,16 @@ class HttpServer {
         this.app.use(express.static('public'));
     }
     
+    messageDatabase(json, callback) {
+        json.__id = Math.random();
+        this.callbacks[json.__id] = callback;
+        process.send(json);
+    }
+    
     clusterTest(req, res) {
-        let id = Math.random();
-        this.callbacks[id] = (msg) => {
-            res.send(msg.string);
-        };
-        process.send({id: id, string: 'Hello'});
+        this.messageDatabase({string: 'Hello'}, json => {
+            res.send(json.string);
+        });
     }
     
     login(req, res) {
