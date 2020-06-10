@@ -1,6 +1,8 @@
 const express = require('express');
 const path = require('path');
 
+const login = require('./login.js');
+
 class HttpServer {
     constructor(port) {
         this.app = express();
@@ -24,7 +26,10 @@ class HttpServer {
     }
     
     setupExpress() {
+        this.app.use(express.urlencoded({extended: true}));
+    
         this.app.get('/clustertest', this.clusterTest.bind(this));
+        this.app.post('/login', this.login.bind(this));
     
         this.app.use(express.static('public'));
     }
@@ -35,6 +40,12 @@ class HttpServer {
             res.send(msg.string);
         };
         process.send({id: id, string: 'Hello'});
+    }
+    
+    login(req, res) {
+        login(req.body.username, req.body.password, (success, error) => {
+            res.send({success: success, error: error});
+        });
     }
 };
 

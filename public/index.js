@@ -7,9 +7,11 @@ function login() {
 
     $.post("login?json=true", $('form').serialize(), function(data) {
 
-        loginData = JSON.parse(data);
+        if (typeof(data) != 'object') {
+            data = JSON.parse(data);
+        }
 
-        if (loginData.success) {
+        if (data.success) {
 
             // Login succeeded
             showSelectionPage();
@@ -17,7 +19,7 @@ function login() {
         } else {
 
             // Login failed
-            $('.login__error').text(loginData.error);
+            $('.login__error').text(data.error ? data.error : 'Failed to login');
             $('.login__input--button').val('Login');
 
         }
