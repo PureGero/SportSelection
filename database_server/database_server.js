@@ -1,14 +1,22 @@
 class DatabaseServer {
     constructor(workers) {
-        workers.forEach(worker => this.registerWorker(worker));
+        this.cookies = {};
+        this.workers = workers;
+        
+        this.workers.forEach(worker => this.registerWorker(worker));
 
         console.log(`Database server on master ${process.pid}`);
     }
     
     registerWorker(worker) {
-        worker.on('message', msg => {
-            msg.string = msg.string.split('').reverse().join('');
-            worker.send(msg);
+        worker.on('message', json => {
+            if (json.action == 'setcookie') {
+                this.cookies[json.key] = json.value;
+                this.workers.forEach(otherWorker => otherWorker != worker ? otherWorker.send(json) : null);
+            } else if (json.action == 'clustertest') {
+                json.string = json.string.split('').reverse().join('');
+                worker.send(json);
+            }
         });
     }
 };
