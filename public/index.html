@@ -20,12 +20,10 @@
             <div class="background"></div>
         </div>
         
-        <!--div class="login__container login__container--selection"-->
-        
         <div class="login__container" aria-live="polite">
             <form method="POST" action="login" onsubmit="return login()">
                 <p class="login__title">Sport Selection</p>
-                <p class="login__error" aria-live="polite"></p>
+                <p class="login__error" aria-live="polite">Please enable javascript to login</p>
                 <input class="login__input" type="text" name="username" aria-label="Username" placeholder="Username" autofocus />
                 <input class="login__input" type="password" name="password" aria-label="Password" placeholder="Password" />
                 <input class="login__input login__input--button" type="submit" aria-label="Login Button" value="Login" />
@@ -33,8 +31,12 @@
         </div>
         
         <footer aria-hidden="true">
-            Made by Ethan Bulmer 2020
+            <a href="https://github.com/PureGero/SportSelection">GitHub</a>
         </footer>
+        
+        <script>
+            $('.login__error').html('');
+        </script>
         
     </body>
 </html>

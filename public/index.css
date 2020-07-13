@@ -47,7 +47,7 @@ html, body {
 }
 
 .login__subtitle {
-    margin-top: -5px;
+    margin-top: 10px;
     margin-bottom: 25px;
 }
 
@@ -167,6 +167,10 @@ footer {
     margin: 6px;
     position: fixed;
     right: 0;
+}
+
+footer a {
+    color: white;
 }
 
 .admin-link {

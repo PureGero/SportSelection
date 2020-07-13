@@ -35,7 +35,7 @@ function selectPeriod(form) {
 
     $.ajax({
         method: 'post',
-        url: 'listsports.php', 
+        url: 'listsports', 
         data: $(form).serialize(),
         error: listSportsError, 
         success: listSportsSuccess
@@ -53,7 +53,7 @@ function selectSport(form) {
     setTimeout(function() {
         $.ajax({
             method: 'post',
-            url: 'listsports.php', 
+            url: 'listsports', 
             data: $(form).serialize(),
             error: listSportsError, 
             success: listSportsSuccess
@@ -73,7 +73,7 @@ function showSelectionPage() {
     $('.login__container').append($('<p class="login__title">Loading...</p>'));
     
     $.ajax({
-        url: 'listsports.php', 
+        url: 'listsports', 
         error: listSportsError, 
         success: listSportsSuccess
     });
@@ -84,7 +84,142 @@ function listSportsError(xhr, status, error) {
 }
 
 function listSportsSuccess(data) {
-    $('.login__container').html(data);
+    if (typeof(data) != 'object') {
+        data = JSON.parse(data);
+    }
+
+    if (data.error) {
+        return $('.login__container').html('<p class="login__title">Error: ' + data.error + '</p>');
+    }
+    
+    if (data.selected) {
+        $('.login__container').html(renderSelected(data.period));
+    } else if (data.sportlist) {
+        $('.login__container').html(renderSportList(data.sportlist, data.period));
+    } else if (data.periodlist) {
+        $('.login__container').html(renderPeriods(data.periodlist));
+    } else if (data.opens) {
+        startCountdown(data.opens);
+    } else {
+        $('.login__container').html('<p class="login__title">Selection has closed</p>');
+    }
+}
+
+function renderSelected(period) {
+    var html = '<p class="login__title">' + period.name + '</p>';
+    
+    html += '<p class="login__subtitle">You have successfully been enrolled into ' + period.selected_name + '</p>';
+    
+    html += '<form action="?show_selection=true" method="post" onsubmit="return selectPeriod(this)">';
+    html += '<input type="hidden" name="periodid" value="' + period.periodid + '" />';
+    html += '<button class="login__input login__input--button">&lt; Go back to the sport selection page</button>';
+    html += '</form>';
+    
+    return html;
+}
+
+function renderSportList(sports, period) {
+    var html = '<p class="login__title">' + period.name + '</p>';
+    
+    var subtitle;
+    if (period.selected_name) {
+        subtitle = 'You are currently enrolled in ' + period.selected_name + '.';
+    } else {
+        subtitle = 'Select your desired sport, and once it displays Enrolled in green, you have finished and may close this page.';
+    }
+    
+    html += '<p class="login__subtitle">' + subtitle + '</p>';
+    
+    for (var i = 0; i < sports.length; i++) {
+        var sport = sports[i];
+    
+        var periodid = period.periodid;
+        var sportid = sport.sportid;
+        var name = sport.name;
+        var remaining = sport.remaining;
+        var selected = sport.selected;
+        
+        var status = remaining + ' spots remaining';
+        if (remaining == 0) {
+            status = 'Full';
+        }
+        if (remaining == 1) {
+            status = remaining + ' spot remaining';
+        }
+        if (selected) {
+            status = 'Enrolled';
+        }
+        
+        var aria = 'Select ' + name + ', ' + status;
+        if (remaining == 0) {
+            aria = name + ' is full';
+        }
+        if (selected) {
+            aria = 'You are currently enrolled in ' + name;
+        }
+        
+        var buttonClass = 'selection__button';
+        var disabled = '';
+        if (selected) {
+            buttonClass = buttonClass + ' selection__button--selected';
+            disabled = 'disabled';
+        } else if (remaining == 0) {
+            buttonClass = buttonClass + ' selection__button--full';
+            disabled = 'disabled';
+        }
+
+        // Unenroll button
+        if (name == '_Unenroll') {
+            name = 'Unenroll';
+            aria = 'Unenroll from this selection';
+            if (!period.selected_name) {
+                disabled = 'disabled';
+                status = 'You are not enrolled';
+                buttonClass = 'selection__button selection__button--full';
+            } else if (remaining == 0) {
+                // Someone didn't give the _Unenroll sport enough space :/
+                disabled = 'disabled';
+                status = 'Full';
+                buttonClass = 'selection__button selection__button--full';
+            } else {
+                disabled = '';
+                status = 'Unenroll';
+                buttonClass = 'selection__button';
+            }
+        }
+    
+        html += '<form action="?show_selection=true" method="post" onsubmit="return selectSport(this)">';
+        html += '<input type="hidden" name="periodid" value="' + periodid + '" />';
+        html += '<input type="hidden" name="sportid" value="' + sportid + '" />';
+        html += '<button class="' + buttonClass + '" aria-label="' + aria + '" ' + disabled + '>';
+        html += '<div class="selection__name">' + name + '</div>';
+        html += '<div class="selection__status">' + status + '</div>';
+        html += '</button>';
+        html += '</form>';
+    }
+    
+    html += '<p class="login__endtitle">' + subtitle + '</p>';
+    
+    return html;
+}
+
+function renderPeriods(periods) {
+    var html = '<p class="login__title">Selection Periods</p>';
+    
+    for (var i = 0; i < periods.length; i++) {
+        var period = periods[i];
+        var aria = "Open selection period " + period.name;
+
+        html += '<form action="?show_selection=true" method="post" onsubmit="return selectPeriod(this)">';
+        html += '<input type="hidden" name="periodid" value="' + period.periodid + '" />';
+        html += '<button class="selection__button" aria-label="' + aria + '">';
+        html += '<div class="selection__name">' + period.name + '</div>';
+        html += '<div class="selection__status">&gt;</div>';
+        html += '</button>';
+        html += '</form>';
+    }
+    
+    return html;
 }
 
             

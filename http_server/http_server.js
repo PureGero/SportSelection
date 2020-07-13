@@ -16,6 +16,8 @@ class HttpServer {
         this.app = express();
         this.callbacks = {};
         this.cookies = {};
+        this.periods = {};
+        this.groups = {};
         
         this.setupDatabaseConnection();
         this.setupExpress();
@@ -29,6 +31,24 @@ class HttpServer {
         process.on('message', json => {
             if (json.action == 'setcookie') {
                 this.cookies[json.key] = json.value;
+            } else if (json.action == 'setperiods') {
+                this.periods = json.value;
+            } else if (json.action == 'setgroups') {
+                this.groups = json.value;
+            } else if (json.action == 'setselection') {
+                this.periods[json.periodid].sports[json.sportid].users.push(json.user);
+                this.periods[json.periodid].selections[json.user] = json.sportid;
+            } else if (json.action == 'removeselection') {
+                let users = this.periods[json.periodid].sports[json.sportid].users;
+                let index = users.indexOf(json.user);
+                
+                if (~index) {
+                    users.splice(users.indexOf(json.user), 1);
+                } else {
+                    console.error('Database/Http Server desync, could not remove ' + json.user + ' from sport periodid=' + json.periodid + ',sportid=' + json.sportid + ' as they are not already added');
+                }
+                
+                delete this.periods[json.periodid].selections[json.user];
             }
         
             if (json.__id) {
@@ -46,7 +66,10 @@ class HttpServer {
         this.app.use(cookieParser());
     
         this.app.get('/clustertest', this.clusterTest.bind(this));
+        this.app.get('/listsports', this.listsports.bind(this));
         this.app.get('/serverinfo', this.serverinfo.bind(this));
+        
+        this.app.post('/listsports', this.listsports.bind(this));
         this.app.post('/login', this.login.bind(this));
     
         this.app.use(express.static('public'));
@@ -68,11 +91,16 @@ class HttpServer {
     }
     
     serverinfo(req, res) {
-        res.send({server_id: process.pid, biscuit: req.cookies.biscuit, username: this.cookies[req.cookies.biscuit]});
+        res.send({server_pid: process.pid, biscuit: req.cookies.biscuit, username: this.cookies[req.cookies.biscuit]});
     }
     
     login(req, res) {
         let username = req.body.username;
+        
+        if (!req.query.json) {
+            // Not a javascript call, non-javascript isn't supported here
+            return res.redirect('/');
+        }
         
         login(username, req.body.password, (success, error) => {
             if (success === true) {
@@ -83,6 +111,132 @@ class HttpServer {
             }
         
             res.send({success: success, error: error});
+        });
+    }
+    
+    listsports(req, res) {
+        let username = this.cookies[req.cookies.biscuit];
+        
+        if (!username) {
+            return res.send({error: 'You are not logged in'});
+        }
+        
+        if (req.body.periodid && req.body.sportid) {
+            // They're trying to enroll!
+            let period = this.periods[req.body.periodid];
+            let sport = period.sports[req.body.sportid];
+            
+            if (sport.users.length < sport.maxusers && this.isAllowedInSport(username, sport) && this.isPeriodOpen(period)) {
+                return this.messageDatabase({
+                    action: 'selectsport',
+                    username: username,
+                    periodid: req.body.periodid,
+                    sportid: req.body.sportid
+                }, json => {
+                    if (json.success) {
+                        res.send({
+                            selected: true,
+                            period: {
+                                periodid: period.periodid,
+                                name: period.name,
+                                description: period.description,
+                                selected_name: sport.name
+                            }
+                        });
+                    } else {
+                        this.listSportsOrPeriods(req, res, username);
+                    }
+                });
+            }
+        }
+        
+        this.listSportsOrPeriods(req, res, username);
+    }
+        
+    listSportsOrPeriods(req, res, username) {
+        let now = Date.now();
+        let period;
+        
+        if (!req.body.periodid) {
+            let future_period = null;
+            let open_periods = [];
+            
+            this.periods.forEach(period => {
+                if (period.sports.some(sport => this.isAllowedInSport(username, sport))) {
+                    if (period.closes < now) {
+                        // Closed
+                    } else if (period.opens < now) {
+                        open_periods.push(period);
+                    } else if (!future_period || period.opens < future_period.opens) {
+                        future_period = period;
+                    }
+                }
+            });
+            
+            if (open_periods.length == 1) {
+                period = open_periods[0];
+            } else if (open_periods.length == 0 && future_period) {
+                return res.send({opens: future_period.opens});
+            } else if (open_periods.length == 0) {
+                return res.send({});
+            } else {
+                let periodlist = [];
+                
+                open_periods.forEach(period => {
+                    periodlist.push({
+                        periodid: period.periodid,
+                        name: period.name,
+                        description: period.description,
+                        selected: period.selections[username]
+                    });
+                });
+                
+                return res.send({periodlist: periodlist});
+            }
+        } else {
+            period = this.periods[req.body.periodid];
+        }
+        
+        let sportlist = [];
+        let selected = period.selections[username];
+        
+        period.sports.forEach((sport, sportid) => {
+            if (this.isAllowedInSport(username, sport)) {
+                this.addSportToList(sportlist, sport, sportid, selected == sportid);
+            }
+        });
+        
+        res.send({
+            sportlist: sportlist,
+            period: {
+                periodid: period.periodid,
+                name: period.name,
+                description: period.description,
+                selected_name: period.selections[username] ? period.sports[period.selections[username]].name : null
+            }
+        });
+    }
+    
+    isPeriodOpen(period) {
+        let now = Date.now();
+        return period.opens < now && now < period.closes;
+    }
+    
+    isAllowedInSport(username, sport) {
+        let mygroups = this.groups[username];
+        
+        return ~sport.allowed.indexOf(username) || (mygroups && mygroups.some(group => {
+            return ~sport.allowed.indexOf(group);
+        }));
+    }
+    
+    addSportToList(sportlist, sport, sportid, selected) {
+        sportlist.push({
+            sportid: sportid,
+            name: sport.name,
+            description: sport.description,
+            remaining: sport.maxusers - sport.users.length,
+            selected: selected
         });
     }
 };

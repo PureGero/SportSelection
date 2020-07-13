@@ -5,9 +5,8 @@ function login(username, password, callback) {
     // --- Replace this with your own authentication system --- //
     
     if (callback) {
-        callback((username == 'testuser' && password == 'password')
-              || (username == 'testuser2' && password == 'password'),
-                 'Invalid username/password');
+        let success = username.startsWith('test') && password == 'password';
+        callback(success, success ? null : 'Invalid username/password');
     }
 }
 
