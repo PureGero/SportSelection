@@ -151,15 +151,15 @@ class HttpServer {
             return res.redirect('/');
         }
         
-        login(username, req.body.password, (success, error) => {
-            if (success === true) {
+        login(username, req.body.password, (username, error) => {
+            if (username) {
                 let key = uuidv4();
                 this.cookies[key] = username;
                 this.messageDatabase({action: 'setcookie', key: key, value: username});
                 res.cookie('biscuit', key, {maxAge: 1000 * 60 * 60 * 24, httpOnly: true, sameSite: 'Strict'});
             }
-        
-            res.send({success: success, error: error});
+            
+            res.send({success: !!username, error: error});
         });
     }
     
