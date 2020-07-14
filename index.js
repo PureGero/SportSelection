@@ -1,7 +1,12 @@
 const cluster = require('cluster');
+const fs = require('fs');
 const os = require('os');
 
-const PORT = 3000;
+if (!fs.existsSync('config.json')) {
+    fs.copyFileSync('config.default.json', 'config.json');
+}
+
+const config = require('./config.json');
 
 const clusterWorkerSize = os.cpus().length;
 
@@ -23,5 +28,5 @@ if (cluster.isMaster) {
 } else {
     const HttpServer = require('./http_server/http_server.js');
     
-    new HttpServer(PORT);
+    new HttpServer(config);
 }

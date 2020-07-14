@@ -1,0 +1,11 @@
+{
+    "http": {
+        "port": 80,
+        "upgradeToHttps": true
+    },
+    "https": {
+        "port": 443,
+        "privateKey": "sslcert.key",
+        "certificate": "sslcert.crt"
+    }
+}

@@ -1,5 +1,8 @@
 const cookieParser = require('cookie-parser');
 const express = require('express');
+const fs = require('fs');
+const http = require('http');
+const https = require('https');
 const path = require('path');
 
 const login = require('./login.js');
@@ -12,7 +15,7 @@ function uuidv4() {
 }
 
 class HttpServer {
-    constructor(port) {
+    constructor(config) {
         this.app = express();
         this.callbacks = {};
         this.cookies = {};
@@ -22,9 +25,50 @@ class HttpServer {
         this.setupDatabaseConnection();
         this.setupExpress();
         
-        this.app.listen(port, () => {
-            console.log(`Express server listening on port ${port} and worker ${process.pid}`);
+        let httpPort = config.http.port;
+        let httpsPort = config.https.port;
+        
+        let httpServer = http.createServer(!config.http.upgradeToHttps ? this.app : (req, res) => {
+            let host = req.headers.host;
+            
+            // Remove port
+            if (host.indexOf(':') >= 0) {
+                host = host.substr(0, host.indexOf(':'));
+            }
+            
+            // Add port
+            if (httpsPort != 443) {
+                host = host + ':' + httpsPort;
+            }
+            
+            res.writeHead(307, {'Location': 'https://' + host + req.url});
+            res.end();
         });
+
+        httpServer.listen(httpPort, err => {
+            if (err) {
+                throw err;
+            }
+        
+            console.log(`Express http server listening on port ${httpPort} as worker ${process.pid}`);
+        });
+        
+        try {
+            let privateKey  = fs.readFileSync(config.https.privateKey, 'utf8');
+            let certificate = fs.readFileSync(config.https.certificate, 'utf8');
+
+            let credentials = {key: privateKey, cert: certificate};
+        
+            let httpsServer = https.createServer(credentials, this.app);
+        
+            httpsServer.listen(httpsPort, err => {
+                if (err) {
+                    throw err;
+                }
+        
+                console.log(`Express https server listening on port ${httpsPort} as worker ${process.pid}`);
+            });
+        } catch (err) {}
     }
     
     setupDatabaseConnection() {
