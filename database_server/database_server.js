@@ -6,7 +6,7 @@ fs.mkdir('data', err => {
 
 let DEFAULT_PERIOD = {
     name: 'Unnamed selection period',
-    description: 'A selection period',
+    description: '',
     opens: 0,
     closes: 0,
     sports: [],
@@ -15,7 +15,7 @@ let DEFAULT_PERIOD = {
 
 let DEFAULT_SPORT = {
     name: 'Unnamed sport',
-    description: 'A sport',
+    description: '',
     maxusers: 0,
     allowed: [],
     users: []
