@@ -139,7 +139,8 @@ class HttpServer {
     }
     
     serverinfo(req, res) {
-        res.send({server_pid: process.pid, biscuit: req.cookies.biscuit, username: this.cookies[req.cookies.biscuit]});
+        let username = this.cookies[req.cookies.biscuit];
+        res.send({server_pid: process.pid, biscuit: req.cookies.biscuit, username: username, groups: this.groups[username]});
     }
     
     login(req, res) {
