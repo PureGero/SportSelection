@@ -31,6 +31,10 @@ class HttpServer {
         let httpServer = http.createServer(!config.http.upgradeToHttps ? this.app : (req, res) => {
             let host = req.headers.host;
             
+            if (!host) {
+                return res.end();
+            }
+            
             // Remove port
             if (host.indexOf(':') >= 0) {
                 host = host.substr(0, host.indexOf(':'));
