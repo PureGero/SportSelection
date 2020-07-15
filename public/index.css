@@ -63,7 +63,7 @@ html, body {
     margin: 0 0 10px;
 }
 
-.login__input, .selection__button {
+.login__input, .selection {
     background-color: white;
     border: 1px solid #ddd;
     border-radius: 4px;
@@ -77,7 +77,7 @@ html, body {
     width: 100%;
 }
 
-.login__input:focus, .selection__button:focus {
+.login__input:focus, .selection:focus {
     border: 1px solid #0094ff;
     box-shadow: 0 0 0 1px #0094ff;
 }
@@ -115,28 +115,40 @@ html, body {
 
 /* Sport Selection */
 
-.selection__button {
+.selection {
     color: black;
-    cursor: pointer;
-    display: flex;
-    justify-content: space-between;
-    text-align: left;
     text-decoration: none;
     transition-duration: 0.3s;
 }
 
-.selection__button:hover {
+.selection--tab {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    text-align: left;
+    z-index: 1;
+}
+
+.selection--button {
+    cursor: pointer;
+    font-size: 14px;
+    margin: 0;
+    padding: 10px 20px;
+    width: auto;
+}
+
+.selection:hover {
     background-color: #0034ff;
     color: white;
 }
 
-.selection__button--selected, .selection__button--selected:hover {
+.selection--selected, .selection--selected:hover {
     background-color: #0094ff;
     color: white;
     cursor: initial;
 }
 
-.selection__button--full, .selection__button--full:hover {
+.selection--full, .selection--full:hover {
     background-color: #CCC;
     color: #555;
     cursor: initial;
@@ -146,6 +158,36 @@ html, body {
     flex-shrink: 0;
     font-size: 16px;
     margin-left: 10px;
+}
+
+.selection--tab:hover {
+    cursor: pointer;
+}
+
+.selection__details {
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid #ddd;
+    border-radius: 0 0 4px 4px;
+    color: #444;
+    display: flex;
+    font-size: 14px;
+    justify-content: space-between;
+    margin-top: -16px;
+    padding: 14px;
+    position: absolute;
+    text-align: left;
+    top: -999px;
+}
+
+.selection__details--shown {
+    position: relative;
+    top: auto;
+}
+
+.selection__details:focus-within {
+    /* Can't combine --shown and :focus-within cause IE */
+    position: relative;
+    top: auto;
 }
 
 .login__container--selection {

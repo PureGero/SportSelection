@@ -31,7 +31,7 @@ function login() {
 
 function selectPeriod(form) {
     $(form).find('.selection__status').html('Loading...');
-    $(form).find('.selection__button').attr('disabled', true);
+    $(form).find('.selection--tab').attr('disabled', true);
 
     $.ajax({
         method: 'post',
@@ -46,23 +46,46 @@ function selectPeriod(form) {
 }
 
 function selectSport(form) {
-    $(form).find('.selection__status').html('Enrolling...');
-    $(form).find('.selection__button').attr('disabled', true);
+    $(form).find('.selection--button').html('Enrolling...');
+    $(form).find('.selection--button').attr('disabled', true);
 
-    // A satisfying 0.5s delay between clicking on a sport and it enrolling
-    setTimeout(function() {
-        $.ajax({
-            method: 'post',
-            url: 'listsports', 
-            data: $(form).serialize(),
-            error: listSportsError, 
-            success: listSportsSuccess
-        });
-    }, 500);
+    $.ajax({
+        method: 'post',
+        url: 'listsports', 
+        data: $(form).serialize(),
+        error: listSportsError, 
+        success: listSportsSuccess
+    });
 
     // Cancel default form action
     return false;
 }
+
+function openSportDetails(div) {
+    var details = div.parentElement.querySelector('.selection__details');
+    
+    if (details.classList.contains('selection__details--shown')) {
+    
+        // Hide details
+        
+        details.classList.remove('selection__details--shown');
+        
+        return;
+    }
+    
+    // Show details
+    
+    var otherShownDetails = document.body.querySelector('.selection__details--shown');
+    
+    if (otherShownDetails) {
+        
+        otherShownDetails.classList.remove('selection__details--shown');
+        
+    }
+    
+    details.classList.add('selection__details--shown');
+}
+
 
 function showSelectionPage() {
     $('.login__page').addClass('selection__page');
@@ -125,7 +148,7 @@ function renderSportList(sports, period) {
     if (period.selected_name) {
         subtitle = 'You are currently enrolled in ' + period.selected_name + '.';
     } else {
-        subtitle = 'Select your desired sport, and once it displays Enrolled in green, you have finished and may close this page.';
+        subtitle = 'Click on a sport to see more details, and press the Enrol button to enrol into it.';
     }
     
     html += '<p class="login__subtitle">' + subtitle + '</p>';
@@ -136,21 +159,25 @@ function renderSportList(sports, period) {
         var periodid = period.periodid;
         var sportid = sport.sportid;
         var name = sport.name;
+        var description = sport.description;
         var remaining = sport.remaining;
         var selected = sport.selected;
         
         var status = remaining + ' spots remaining';
+        var buttonText = 'Enrol &gt;';
         if (remaining == 0) {
             status = 'Full';
+            buttonText = 'Full';
         }
         if (remaining == 1) {
             status = remaining + ' spot remaining';
         }
         if (selected) {
             status = 'Enrolled';
+            buttonText = 'Enrolled';
         }
         
-        var aria = 'Select ' + name + ', ' + status;
+        var aria = 'Enrol in ' + name + ', ' + status;
         if (remaining == 0) {
             aria = name + ' is full';
         }
@@ -158,13 +185,13 @@ function renderSportList(sports, period) {
             aria = 'You are currently enrolled in ' + name;
         }
         
-        var buttonClass = 'selection__button';
+        var buttonClass = 'selection';
         var disabled = '';
         if (selected) {
-            buttonClass = buttonClass + ' selection__button--selected';
+            buttonClass = buttonClass + ' selection--selected';
             disabled = 'disabled';
         } else if (remaining == 0) {
-            buttonClass = buttonClass + ' selection__button--full';
+            buttonClass = buttonClass + ' selection--full';
             disabled = 'disabled';
         }
 
@@ -175,26 +202,30 @@ function renderSportList(sports, period) {
             if (!period.selected_name) {
                 disabled = 'disabled';
                 status = 'You are not enrolled';
-                buttonClass = 'selection__button selection__button--full';
+                buttonClass = 'selection selection--full';
             } else if (remaining == 0) {
                 // Someone didn't give the _Unenroll sport enough space :/
                 disabled = 'disabled';
                 status = 'Full';
-                buttonClass = 'selection__button selection__button--full';
+                buttonClass = 'selection selection--full';
             } else {
                 disabled = '';
                 status = 'Unenroll';
-                buttonClass = 'selection__button';
+                buttonClass = 'selection';
             }
         }
     
         html += '<form action="?show_selection=true" method="post" onsubmit="return selectSport(this)">';
         html += '<input type="hidden" name="periodid" value="' + periodid + '" />';
         html += '<input type="hidden" name="sportid" value="' + sportid + '" />';
-        html += '<button class="' + buttonClass + '" aria-label="' + aria + '" ' + disabled + '>';
+        html += '<div class="' + buttonClass + ' selection--tab" onclick="return openSportDetails(this)">';
         html += '<div class="selection__name">' + name + '</div>';
         html += '<div class="selection__status">' + status + '</div>';
-        html += '</button>';
+        html += '</div>';
+        html += '<div class="selection__details">';
+        html += description;
+        html += '<button class="' + buttonClass + ' selection--button" aria-label="' + aria + '" ' + disabled + '>' + buttonText + '</button>';
+        html += '</div>'
         html += '</form>';
     }
     
@@ -212,7 +243,7 @@ function renderPeriods(periods) {
 
         html += '<form action="?show_selection=true" method="post" onsubmit="return selectPeriod(this)">';
         html += '<input type="hidden" name="periodid" value="' + period.periodid + '" />';
-        html += '<button class="selection__button" aria-label="' + aria + '">';
+        html += '<button class="selection selection--tab" aria-label="' + aria + '">';
         html += '<div class="selection__name">' + period.name + '</div>';
         html += '<div class="selection__status">&gt;</div>';
         html += '</button>';
