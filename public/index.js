@@ -2,35 +2,35 @@ function login() {
     // Set login in progress
     var loginError = document.querySelector('.login__error');
     var loginButton = document.querySelector('.login__input--button');
-    
+
     if (loginError) {
         loginError.innerHTML = '';
     }
-    
+
     if (loginButton) {
         loginButton.value = 'Logging in...';
     }
-    
+
     var form = document.querySelector('form');
     var data = new FormData(form);
     var req = new XMLHttpRequest();
-    
+
     req.onreadystatechange = function() {
         if (this.readyState == 4) {
             var data = JSON.parse(req.responseText);
-        
+
             if (data.success) {
                 // Login succeeded
-                
+
                 showSelectionPage();
 
             } else {
                 // Login failed
-                
+
                 if (loginError) {
                     loginError.innerHTML = data.error ? data.error : 'Failed to login';
                 }
-                
+
                 if (loginButton) {
                     loginButton.value = 'Login';
                 }
@@ -38,7 +38,7 @@ function login() {
             }
         }
     };
-    
+
     req.open("POST", "login?json=true", true);
     req.send(data);
 
@@ -49,15 +49,15 @@ function login() {
 function selectPeriod(form) {
     var selectionStatus = form.querySelector('.selection__status');
     var selectionTab = form.querySelector('.selection--tab');
-    
+
     if (selectionStatus) {
         selectionStatus.innerHTML = 'Loading...';
     }
-    
+
     if (selectionTab) {
         selectionTab.disabled = true;
     }
-    
+
     listSports(form);
 
     // Cancel default form action
@@ -66,12 +66,12 @@ function selectPeriod(form) {
 
 function selectSport(form) {
     var selectionButton = form.querySelector('.selection--button');
-    
+
     if (selectionButton) {
         selectionButton.innerHTML = 'Enrolling...';
         selectionButton.disabled = true;
     }
-    
+
     listSports(form);
 
     // Cancel default form action
@@ -80,26 +80,26 @@ function selectSport(form) {
 
 function openSportDetails(div) {
     var details = div.parentElement.querySelector('.selection__details');
-    
+
     if (details.classList.contains('selection__details--shown')) {
-    
+
         // Hide details
-        
+
         details.classList.remove('selection__details--shown');
-        
+
         return;
     }
-    
+
     // Show details
-    
+
     var otherShownDetails = document.body.querySelector('.selection__details--shown');
-    
+
     if (otherShownDetails) {
-        
+
         otherShownDetails.classList.remove('selection__details--shown');
-        
+
     }
-    
+
     details.classList.add('selection__details--shown');
 }
 
@@ -107,31 +107,31 @@ function openSportDetails(div) {
 function showSelectionPage() {
     var loginPage = document.querySelector('.login__page');
     var loginContainer = document.querySelector('.login__container');
-    
+
     if (loginPage) {
         loginPage.classList.remove('login__page');
         loginPage.classList.add('selection__page');
     }
-    
+
     if (loginContainer) {
         loginContainer.classList.add('login__container--selection');
         loginContainer.innerHTML = '<p class="login__title">Loading...</p>';
     }
-    
+
     var req = new XMLHttpRequest();
-    
+
     req.onreadystatechange = function() {
         if (this.readyState == 4) {
             if (this.status == 200) {
                 var data = JSON.parse(req.responseText);
-            
+
                 listSportsSuccess(data);
             } else {
                 listSportsError(this.status, req.responseText);
             }
         }
     };
-    
+
     req.open("GET", "listsports?json=true", true);
     req.send();
 }
@@ -139,19 +139,19 @@ function showSelectionPage() {
 function listSports(form) {
     var data = new FormData(form);
     var req = new XMLHttpRequest();
-    
+
     req.onreadystatechange = function() {
         if (this.readyState == 4) {
             if (this.status == 200) {
                 var data = JSON.parse(req.responseText);
-            
+
                 listSportsSuccess(data);
             } else {
                 listSportsError(this.status, req.responseText);
             }
         }
     };
-    
+
     req.open("POST", "listsports?json=true", true);
     req.send(data);
 }
@@ -162,11 +162,11 @@ function listSportsError(status, error) {
 
 function listSportsSuccess(data) {
     var loginContainer = document.querySelector('.login__container');
-    
+
     if (data.error) {
         return loginContainer.innerHTML = '<p class="login__title">Error: ' + data.error + '</p>';
     }
-    
+
     if (data.selected) {
         loginContainer.innerHTML = renderSelected(data.period);
     } else if (data.sportlist) {
@@ -182,39 +182,39 @@ function listSportsSuccess(data) {
 
 function renderSelected(period) {
     var html = '<p class="login__title">' + period.name + '</p>';
-    
+
     html += '<p class="login__subtitle">You have successfully been enrolled into ' + period.selected_name + '</p>';
-    
+
     html += '<form action="?show_selection=true" method="post" onsubmit="return selectPeriod(this)">';
     html += '<input type="hidden" name="periodid" value="' + period.periodid + '" />';
     html += '<button class="login__input login__input--button">&lt; Go back to the sport selection page</button>';
     html += '</form>';
-    
+
     return html;
 }
 
 function renderSportList(sports, period) {
     var html = '<p class="login__title">' + period.name + '</p>';
-    
+
     var subtitle;
     if (period.selected_name) {
         subtitle = 'You are currently enrolled in ' + period.selected_name + '.';
     } else {
         subtitle = 'Click on a sport to see more details, and press the Enrol button to enrol into it.';
     }
-    
+
     html += '<p class="login__subtitle">' + subtitle + '</p>';
-    
+
     for (var i = 0; i < sports.length; i++) {
         var sport = sports[i];
-    
+
         var periodid = period.periodid;
         var sportid = sport.sportid;
         var name = sport.name;
         var description = sport.description;
         var remaining = sport.remaining;
         var selected = sport.selected;
-        
+
         var status = remaining + ' spots remaining';
         var buttonText = 'Enrol &gt;';
         if (remaining == 0) {
@@ -228,7 +228,7 @@ function renderSportList(sports, period) {
             status = 'Enrolled';
             buttonText = 'Enrolled';
         }
-        
+
         var aria = 'Enrol in ' + name + ', ' + status;
         if (remaining == 0) {
             aria = name + ' is full';
@@ -236,7 +236,7 @@ function renderSportList(sports, period) {
         if (selected) {
             aria = 'You are currently enrolled in ' + name;
         }
-        
+
         var buttonClass = 'selection';
         var disabled = '';
         if (selected) {
@@ -266,7 +266,7 @@ function renderSportList(sports, period) {
                 buttonClass = 'selection';
             }
         }
-    
+
         html += '<form action="?show_selection=true" method="post" onsubmit="return selectSport(this)">';
         html += '<input type="hidden" name="periodid" value="' + periodid + '" />';
         html += '<input type="hidden" name="sportid" value="' + sportid + '" />';
@@ -280,15 +280,15 @@ function renderSportList(sports, period) {
         html += '</div>'
         html += '</form>';
     }
-    
+
     html += '<p class="login__endtitle">' + subtitle + '</p>';
-    
+
     return html;
 }
 
 function renderPeriods(periods) {
     var html = '<p class="login__title">Selection Periods</p>';
-    
+
     for (var i = 0; i < periods.length; i++) {
         var period = periods[i];
         var aria = "Open selection period " + period.name;
@@ -301,17 +301,17 @@ function renderPeriods(periods) {
         html += '</button>';
         html += '</form>';
     }
-    
+
     return html;
 }
 
-            
+
 function prettifyTime(millis) {
     var seconds = Math.floor(millis/1000);
     var minutes = Math.floor(seconds/60);
     var hours = Math.floor(minutes/60);
     var days = Math.floor(hours/24);
-    
+
     if (seconds < 1) {
         return seconds + " seconds";
     } else if (seconds < 2) {
@@ -359,13 +359,13 @@ function prettifyTime(millis) {
 
 function startCountdown(time) {
     var date = new Date(time);
-    
+
     var loginTitle = document.querySelector('.login__title');
-    
+
     if (!loginTitle) {
         return;
     }
-    
+
     if (Date.now() > date) {
         loginTitle.innerHTML = 'Selection is opening...';
         setTimeout(showSelectionPage, Math.random() * 4000 + 100);
