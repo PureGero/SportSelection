@@ -1,6 +1,9 @@
 const cluster = require('cluster');
 const fs = require('fs');
+const process = require('process');
 const os = require('os');
+
+process.chdir(__dirname);
 
 if (!fs.existsSync('config.json')) {
     fs.copyFileSync('config.default.json', 'config.json');
