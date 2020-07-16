@@ -18,6 +18,13 @@ then
     yum install python38 -y
 fi
 
+# Install make cause the same dependency needs it?
+if ! command -v make &> /dev/null
+then
+    echo "Installing gcc..."
+    dnf group install "Development Tools" -y
+fi
+
 # Install npm packages
 npm install
 
@@ -27,7 +34,7 @@ echo "Description=Sport Selection server daemon" >> /etc/systemd/system/multi-us
 echo "After=network.target" >> /etc/systemd/system/multi-user.target.wants/sportselection.service
 echo "" >> /etc/systemd/system/multi-user.target.wants/sportselection.service
 echo "[Service]" >> /etc/systemd/system/multi-user.target.wants/sportselection.service
-echo "ExecStart=/usr/bin/node `dirname "$0"`" >> /etc/systemd/system/multi-user.target.wants/sportselection.service
+echo "ExecStart=/usr/bin/node `pwd`" >> /etc/systemd/system/multi-user.target.wants/sportselection.service
 echo "ExecReload=/bin/kill -HUP $MAINPID" >> /etc/systemd/system/multi-user.target.wants/sportselection.service
 echo "KillMode=process" >> /etc/systemd/system/multi-user.target.wants/sportselection.service
 echo "" >> /etc/systemd/system/multi-user.target.wants/sportselection.service
