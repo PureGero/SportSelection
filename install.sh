@@ -2,11 +2,20 @@
 
 # This script is designed for CentOS 8, it may or may not work on other systems
 
+cd `dirname "$0"`
+
 # Install node
 if ! command -v node &> /dev/null
 then
     echo "Installing nodejs..."
-    dnf install nodejs
+    dnf install nodejs -y
+fi
+
+# Install python cause one of the dependencies needs it?
+if ! command -v python3 &> /dev/null
+then
+    echo "Installing python..."
+    yum install python38 -y
 fi
 
 # Install npm packages
