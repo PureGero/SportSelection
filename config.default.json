@@ -1,7 +1,7 @@
 {
     "http": {
         "port": 80,
-        "upgradeToHttps": true
+        "upgradeToHttps": false
     },
     "https": {
         "port": 443,
