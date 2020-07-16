@@ -5,24 +5,24 @@ not.
 
 Install `git` with
 
-    $ sudo yum install git -y
+    sudo yum install git -y
 
 Download the sport selection program with
 
-    $ git clone https://github.com/PureGero/SportSelection.git
+    git clone https://github.com/PureGero/SportSelection.git
 
 Install the program with
 
-    $ sudo SportSelection/install.sh
+    sudo SportSelection/install.sh
     
 Start the service with
 
-    $ sudo systemctl start sportselection.service
+    sudo systemctl start sportselection.service
 
 There might be a firewall installed, add port 80 and 443 to it with
 
-    $ sudo firewall-cmd --zone=public --permanent --add-port=80/tcp --add-port=443/tcp
-    $ sudo firewall-cmd --reload
+    sudo firewall-cmd --zone=public --permanent --add-port=80/tcp --add-port=443/tcp
+    sudo firewall-cmd --reload
 
 It's now all set up and good to go!
 
