@@ -26,9 +26,11 @@ then
 fi
 
 # Install npm packages
+echo "Installing library..."
 npm install
 
 # Create service
+echo "Installing service..."
 echo "[Unit]" > /etc/systemd/system/multi-user.target.wants/sportselection.service
 echo "Description=Sport Selection server daemon" >> /etc/systemd/system/multi-user.target.wants/sportselection.service
 echo "After=network.target" >> /etc/systemd/system/multi-user.target.wants/sportselection.service
@@ -37,10 +39,13 @@ echo "[Service]" >> /etc/systemd/system/multi-user.target.wants/sportselection.s
 echo "ExecStart=/usr/bin/node `pwd`" >> /etc/systemd/system/multi-user.target.wants/sportselection.service
 echo "ExecReload=/bin/kill -HUP $MAINPID" >> /etc/systemd/system/multi-user.target.wants/sportselection.service
 echo "KillMode=process" >> /etc/systemd/system/multi-user.target.wants/sportselection.service
+echo "Restart=on-failure" >> /etc/systemd/system/multi-user.target.wants/sportselection.service
+echo "RestartSec=15s" >> /etc/systemd/system/multi-user.target.wants/sportselection.service
 echo "" >> /etc/systemd/system/multi-user.target.wants/sportselection.service
 echo "[Install]" >> /etc/systemd/system/multi-user.target.wants/sportselection.service
 echo "WantedBy=multi-user.target" >> /etc/systemd/system/multi-user.target.wants/sportselection.service
 
 # Enable and start service
-systemctl enable sportselection.service
-systemctl start sportselection.service
+echo "Installed."
+echo "Start the service with"
+echo "> sudo systemctl start sportselection.service"
