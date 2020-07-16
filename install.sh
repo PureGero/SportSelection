@@ -45,7 +45,10 @@ echo "" >> /etc/systemd/system/multi-user.target.wants/sportselection.service
 echo "[Install]" >> /etc/systemd/system/multi-user.target.wants/sportselection.service
 echo "WantedBy=multi-user.target" >> /etc/systemd/system/multi-user.target.wants/sportselection.service
 
-# Enable and start service
+# Enable the service
+systemctl daemon-reload
+systemctl enable /etc/systemd/system/multi-user.target.wants/sportselection.service
+
 echo "Installed."
 echo "Start the service with"
 echo "> sudo systemctl start sportselection.service"
