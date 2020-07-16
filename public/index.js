@@ -1,61 +1,78 @@
-var pid = 0;
-
 function login() {
     // Set login in progress
-    $('.login__error').text('');
-    $('.login__input--button').val('Logging in...');
+    var loginError = document.querySelector('.login__error');
+    var loginButton = document.querySelector('.login__input--button');
+    
+    if (loginError) {
+        loginError.innerHTML = '';
+    }
+    
+    if (loginButton) {
+        loginButton.value = 'Logging in...';
+    }
+    
+    var form = document.querySelector('form');
+    var data = new FormData(form);
+    var req = new XMLHttpRequest();
+    
+    req.onreadystatechange = function() {
+        if (this.readyState == 4) {
+            var data = JSON.parse(req.responseText);
+        
+            if (data.success) {
+                // Login succeeded
+                
+                showSelectionPage();
 
-    $.post("login?json=true", $('form').serialize(), function(data) {
+            } else {
+                // Login failed
+                
+                if (loginError) {
+                    loginError.innerHTML = data.error ? data.error : 'Failed to login';
+                }
+                
+                if (loginButton) {
+                    loginButton.value = 'Login';
+                }
 
-        if (typeof(data) != 'object') {
-            data = JSON.parse(data);
+            }
         }
-
-        if (data.success) {
-
-            // Login succeeded
-            showSelectionPage();
-
-        } else {
-
-            // Login failed
-            $('.login__error').text(data.error ? data.error : 'Failed to login');
-            $('.login__input--button').val('Login');
-
-        }
-    });
+    };
+    
+    req.open("POST", "login?json=true", true);
+    req.send(data);
 
     // Cancel default form action
     return false;
 }
 
 function selectPeriod(form) {
-    $(form).find('.selection__status').html('Loading...');
-    $(form).find('.selection--tab').attr('disabled', true);
-
-    $.ajax({
-        method: 'post',
-        url: 'listsports', 
-        data: $(form).serialize(),
-        error: listSportsError, 
-        success: listSportsSuccess
-    });
+    var selectionStatus = form.querySelector('.selection__status');
+    var selectionTab = form.querySelector('.selection--tab');
+    
+    if (selectionStatus) {
+        selectionStatus.innerHTML = 'Loading...';
+    }
+    
+    if (selectionTab) {
+        selectionTab.disabled = true;
+    }
+    
+    listSports(form);
 
     // Cancel default form action
     return false;
 }
 
 function selectSport(form) {
-    $(form).find('.selection--button').html('Enrolling...');
-    $(form).find('.selection--button').attr('disabled', true);
-
-    $.ajax({
-        method: 'post',
-        url: 'listsports', 
-        data: $(form).serialize(),
-        error: listSportsError, 
-        success: listSportsSuccess
-    });
+    var selectionButton = form.querySelector('.selection--button');
+    
+    if (selectionButton) {
+        selectionButton.innerHTML = 'Enrolling...';
+        selectionButton.disabled = true;
+    }
+    
+    listSports(form);
 
     // Cancel default form action
     return false;
@@ -88,43 +105,78 @@ function openSportDetails(div) {
 
 
 function showSelectionPage() {
-    $('.login__page').addClass('selection__page');
-    $('.login__page').removeClass('login__page');
-
-    $('.login__container').addClass('login__container--selection');
-    $('.login__container').empty();
-    $('.login__container').append($('<p class="login__title">Loading...</p>'));
+    var loginPage = document.querySelector('.login__page');
+    var loginContainer = document.querySelector('.login__container');
     
-    $.ajax({
-        url: 'listsports', 
-        error: listSportsError, 
-        success: listSportsSuccess
-    });
+    if (loginPage) {
+        loginPage.classList.remove('login__page');
+        loginPage.classList.add('selection__page');
+    }
+    
+    if (loginContainer) {
+        loginContainer.classList.add('login__container--selection');
+        loginContainer.innerHTML = '<p class="login__title">Loading...</p>';
+    }
+    
+    var req = new XMLHttpRequest();
+    
+    req.onreadystatechange = function() {
+        if (this.readyState == 4) {
+            if (this.status == 200) {
+                var data = JSON.parse(req.responseText);
+            
+                listSportsSuccess(data);
+            } else {
+                listSportsError(this.status, req.responseText);
+            }
+        }
+    };
+    
+    req.open("GET", "listsports?json=true", true);
+    req.send();
 }
 
-function listSportsError(xhr, status, error) {
-    $('.login__container').html('<p class="login__title">Error: ' + status + ': ' + error + '</p>');
+function listSports(form) {
+    var data = new FormData(form);
+    var req = new XMLHttpRequest();
+    
+    req.onreadystatechange = function() {
+        if (this.readyState == 4) {
+            if (this.status == 200) {
+                var data = JSON.parse(req.responseText);
+            
+                listSportsSuccess(data);
+            } else {
+                listSportsError(this.status, req.responseText);
+            }
+        }
+    };
+    
+    req.open("POST", "listsports?json=true", true);
+    req.send(data);
+}
+
+function listSportsError(status, error) {
+    document.querySelector('.login__container').innerHTML = '<p class="login__title">Error: ' + status + ': ' + error + '</p>';
 }
 
 function listSportsSuccess(data) {
-    if (typeof(data) != 'object') {
-        data = JSON.parse(data);
-    }
-
+    var loginContainer = document.querySelector('.login__container');
+    
     if (data.error) {
-        return $('.login__container').html('<p class="login__title">Error: ' + data.error + '</p>');
+        return loginContainer.innerHTML = '<p class="login__title">Error: ' + data.error + '</p>';
     }
     
     if (data.selected) {
-        $('.login__container').html(renderSelected(data.period));
+        loginContainer.innerHTML = renderSelected(data.period);
     } else if (data.sportlist) {
-        $('.login__container').html(renderSportList(data.sportlist, data.period));
+        loginContainer.innerHTML = renderSportList(data.sportlist, data.period);
     } else if (data.periodlist) {
-        $('.login__container').html(renderPeriods(data.periodlist));
+        loginContainer.innerHTML = renderPeriods(data.periodlist);
     } else if (data.opens) {
         startCountdown(data.opens);
     } else {
-        $('.login__container').html('<p class="login__title">Selection has closed</p>');
+        loginContainer.innerHTML = '<p class="login__title">Selection has closed</p>';
     }
 }
 
@@ -308,11 +360,17 @@ function prettifyTime(millis) {
 function startCountdown(time) {
     var date = new Date(time);
     
+    var loginTitle = document.querySelector('.login__title');
+    
+    if (!loginTitle) {
+        return;
+    }
+    
     if (Date.now() > date) {
-        $('.login__title').text('Selection is opening...');
+        loginTitle.innerHTML = 'Selection is opening...';
         setTimeout(showSelectionPage, Math.random() * 4000 + 100);
     } else {
-        $('.login__title').text('Selection opens in ' + prettifyTime(date - Date.now()));
+        loginTitle.innerHTML = 'Selection opens in ' + prettifyTime(date - Date.now());
         setTimeout(startCountdown, 1000, time);
     }
 }

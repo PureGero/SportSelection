@@ -1,5 +1,6 @@
 const cookieParser = require('cookie-parser');
 const express = require('express');
+const formData = require("express-form-data");
 const fs = require('fs');
 const http = require('http');
 const https = require('https');
@@ -112,6 +113,7 @@ class HttpServer {
     setupExpress() {
         this.app.use(express.urlencoded({extended: true}));
         this.app.use(cookieParser());
+        this.app.use(formData.parse());
     
         this.app.get('/clustertest', this.clusterTest.bind(this));
         this.app.get('/listsports', this.listsports.bind(this));
