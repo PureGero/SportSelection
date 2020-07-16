@@ -275,7 +275,7 @@ function renderSportList(sports, period) {
         html += '<div class="selection__status">' + status + '</div>';
         html += '</div>';
         html += '<div class="selection__details">';
-        html += description;
+        html += description + '&nbsp;';
         html += '<button class="' + buttonClass + ' selection--button" aria-label="' + aria + '" ' + disabled + '>' + buttonText + '</button>';
         html += '</div>'
         html += '</form>';
