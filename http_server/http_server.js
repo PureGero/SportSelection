@@ -155,7 +155,7 @@ class HttpServer {
         let password = req.body.password;
         
         if (!username || !password) {
-            res.send({success: false, error: 'Please specify a username and password'});
+            return res.send({success: false, error: 'Please specify a username and password'});
         }
         
         login(username, password, (username, error) => {
