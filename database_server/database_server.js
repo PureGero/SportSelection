@@ -26,57 +26,8 @@ class DatabaseServer {
         this.needsSaving = true;
         this.cookies = {};
         this.workers = workers;
-        this.periods = [
-            {
-                name: '2020 Junior Sport Selection',
-                opens: 1594652644139,
-                closes: 1594706431268,
-                sports: [
-                    {
-                        name: 'Ball Games',
-                        description: 'Play a variety of ball-based sports',
-                        maxusers: 5,
-                        allowed: ['testgroup'],
-                        users: []
-                    },
-                    {
-                        name: 'Tennis',
-                        description: 'Play casual tennis on the Cavendish Road SHS tennis courts',
-                        maxusers: 3,
-                        allowed: ['testgroup'],
-                        users: []
-                    },
-                ],
-                selections: {},
-            },
-            {
-                name: '2020 Senior Sport Selection',
-                opens: 1594652644139,
-                closes: 1594706431268,
-                sports: [
-                    {
-                        name: 'Ball Games',
-                        description: 'Play a variety of ball-based sports',
-                        maxusers: 5,
-                        allowed: ['testgroup'],
-                        users: []
-                    },
-                    {
-                        name: 'Tennis',
-                        description: 'Play casual tennis on the Cavendish Road SHS tennis courts',
-                        maxusers: 3,
-                        allowed: ['testgroup'],
-                        users: []
-                    },
-                ],
-                selections: {},
-            },
-        ];
-        this.groups = {
-            'test': ['testgroup'],
-            'test2': ['testgroup'],
-            'testadmin': ['admin'],
-        };
+        this.periods = [];
+        this.groups = {};
         
         this.workers.forEach(worker => this.registerWorker(worker));
         
@@ -204,6 +155,8 @@ class DatabaseServer {
         
         sport.users.push(username);
         period.selections[username] = sportid;
+        
+        console.log(`{username} has selected {sportid} ({sport.name})`);
         
         this.needsSaving = true;
         
