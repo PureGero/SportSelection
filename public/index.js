@@ -368,7 +368,7 @@ function startCountdown(time) {
 
     if (Date.now() > date) {
         loginTitle.innerHTML = 'Selection is opening...';
-        setTimeout(showSelectionPage, Math.random() * 4000 + 100);
+        setTimeout(showSelectionPage, Math.random() * 10000);
     } else {
         loginTitle.innerHTML = 'Selection opens in ' + prettifyTime(date - Date.now());
         setTimeout(startCountdown, 1000, time);
