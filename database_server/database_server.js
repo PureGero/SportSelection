@@ -156,7 +156,7 @@ class DatabaseServer {
         sport.users.push(username);
         period.selections[username] = sportid;
         
-        console.log(`{username} has selected {sportid} ({sport.name})`);
+        console.log(`${username} has selected ${period.name}: ${sport.name}`);
         
         this.needsSaving = true;
         
