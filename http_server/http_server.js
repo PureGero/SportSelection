@@ -146,14 +146,19 @@ class HttpServer {
     }
     
     login(req, res) {
-        let username = req.body.username;
-        
         if (!req.query.json) {
             // Not a javascript call, non-javascript isn't supported here
             return res.redirect('/');
         }
         
-        login(username, req.body.password, (username, error) => {
+        let username = req.body.username;
+        let password = req.body.password;
+        
+        if (!username || !password) {
+            res.send({success: false, error: 'Please specify a username and password'});
+        }
+        
+        login(username, password, (username, error) => {
             if (username) {
                 let key = uuidv4();
                 this.cookies[key] = username;
