@@ -1,11 +1,13 @@
 const cookieParser = require('cookie-parser');
 const express = require('express');
 const formData = require("express-form-data");
+const expressWs = require("express-ws");
 const fs = require('fs');
 const http = require('http');
 const https = require('https');
 const path = require('path');
 
+const admin = require('./admin.js');
 const login = require('./login.js');
 
 function uuidv4() {
@@ -18,37 +20,17 @@ function uuidv4() {
 class HttpServer {
     constructor(config) {
         this.app = express();
+        
         this.callbacks = {};
         this.cookies = {};
-        this.periods = {};
+        this.periods = [];
         this.groups = {};
-        
-        this.setupDatabaseConnection();
-        this.setupExpress();
+        this.admin = admin(this);
         
         let httpPort = config.http.port;
         let httpsPort = config.https.port;
         
-        let httpServer = http.createServer(!config.http.upgradeToHttps ? this.app : (req, res) => {
-            let host = req.headers.host;
-            
-            if (!host) {
-                return res.end();
-            }
-            
-            // Remove port
-            if (host.indexOf(':') >= 0) {
-                host = host.substr(0, host.indexOf(':'));
-            }
-            
-            // Add port
-            if (httpsPort != 443) {
-                host = host + ':' + httpsPort;
-            }
-            
-            res.writeHead(307, {'Location': 'https://' + host + req.url});
-            res.end();
-        });
+        let httpServer = http.createServer(!config.http.upgradeToHttps ? this.app : this.upgradeToHttps.bind(this));
 
         httpServer.listen(httpPort, err => {
             if (err) {
@@ -57,6 +39,8 @@ class HttpServer {
         
             console.log(`Express http server listening on port ${httpPort} as worker ${process.pid}`);
         });
+        
+        expressWs(this.app, httpServer);
         
         try {
             let privateKey  = fs.readFileSync(config.https.privateKey, 'utf8');
@@ -73,7 +57,35 @@ class HttpServer {
         
                 console.log(`Express https server listening on port ${httpsPort} as worker ${process.pid}`);
             });
-        } catch (err) {}
+        
+            expressWs(this.app, httpsServer);
+        } catch (err) {
+            console.error('Error while starting https server: ' + err);
+        }
+        
+        this.setupDatabaseConnection();
+        this.setupExpress();
+    }
+    
+    upgradeToHttps(req, res) {
+        let host = req.headers.host;
+        
+        if (!host) {
+            return res.end();
+        }
+        
+        // Remove port
+        if (host.indexOf(':') >= 0) {
+            host = host.substr(0, host.indexOf(':'));
+        }
+        
+        // Add port
+        if (httpsPort != 443) {
+            host = host + ':' + httpsPort;
+        }
+        
+        res.writeHead(307, {'Location': 'https://' + host + req.url});
+        res.end();
     }
     
     setupDatabaseConnection() {
@@ -121,6 +133,8 @@ class HttpServer {
         
         this.app.post('/listsports', this.listsports.bind(this));
         this.app.post('/login', this.login.bind(this));
+        
+        this.app.ws('/admin', this.admin);
     
         this.app.use(express.static('public'));
     }

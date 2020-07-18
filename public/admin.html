@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+    <head>
+    
+        <title>Sport Selection | Admin</title>
+        
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        
+        <link rel="stylesheet" type="text/css" href="admin.css" />
+        
+        <script src="admin.js"></script>
+        
+    </head>
+    
+    <body>
+    
+        <header>
+            <h1>Sport selection</h1>
+            
+            <h2 id="saving"></h2>
+            
+            <h2 id="loginstatus"></h2>
+        </header>
+        
+        <nav class="periodlist" aria-labelledby="periodlist">
+            
+        </nav>
+        
+        <nav class="sportlist" aria-labelledby="sportlist">
+            
+        </nav>
+        
+        <main aria-labelledby="name">
+            <h2 id="name">Login</h2>
+            
+            <form action="" method="post" onsubmit="return login(this)">
+                <p class="error" aria-live="polite">Please use a modern browser to login</p>
+                <label for="username">Username:</label>
+                <input type="text" name="username" id="username" placeholder="Username" autofocus/>
+                <label for="password">Password:</label>
+                <input type="password" name="password" id="password" placeholder="Password"/>
+                <input type="submit" id="submit" value="Login"/>
+            </form>
+            
+            <script>
+                // Ensure javascript and arrow functions are enabled
+                (() => document.querySelector('.error').innerHTML = '')();
+            </script>
+        </main>
+        
+        <div class="disconnected" style="display: none">
+            <div>
+                <h2>Disconnected from the server</h2>
+                Please refresh the page
+            </div>
+        </div>
+    
+    </body>
+</html>

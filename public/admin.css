@@ -1,0 +1,211 @@
+.visuallyhidden { 
+  position: absolute; 
+  overflow: hidden; 
+  clip: rect(0 0 0 0); 
+  height: 1px; width: 1px; 
+  margin: -1px; padding: 0; border: 0; 
+}
+
+html,
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
+header {
+    background-color: #144d29;
+    border-bottom: 1px solid #e5e5e5;
+    display: flex;
+    justify-content: space-between;
+    padding: 15px 30px;
+}
+
+header h1 {
+    color: white;
+    cursor: pointer;
+    font-size: 20px;
+    font-weight: normal;
+    margin: 0;
+    text-transform: uppercase;
+}
+
+header h2 {
+    color: white;
+    font-size: 16px;
+    margin: 2px;
+}
+
+nav {
+    background-color: #f0fff0;
+    border-right: 1px solid #e5f3e5;
+    float: left;
+    font-size: 14px;
+    height: 100%;
+    width: 225px;
+}
+
+nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+nav li {
+    color: black;
+    cursor: pointer;
+    display: block;
+    white-space: nowrap;
+    overflow-x: auto;
+    padding: 10px 30px 15px 15px;
+    position: relative;
+    text-decoration: none;
+    transition-duration: 0.2s;
+}
+
+nav li:hover {
+    background-color: #0a04;
+}
+
+nav li.active {
+    background-color: #0a02;
+}
+
+nav li.new {
+    padding-bottom: 10px;
+}
+
+nav li:after {
+    content: '';
+    height: 20px;
+    position: absolute;
+    right: 25px;
+    top: 23px;
+    transform: rotate(-45deg);
+    transition-duration: 0.2s;
+    width: 20px;
+}
+
+nav li:hover:after {
+    right: 20px;
+}
+
+nav li.active:after {
+    right: 15px;
+}
+
+nav li.new:after {
+    background:
+        linear-gradient(#3a631e, #3a631e),
+        linear-gradient(#3a631e, #3a631e),
+        #0000;
+    background-position:center;
+    background-size: 100% 2px, 2px 100%;
+    background-repeat:no-repeat;
+    border: none;
+    padding: 0;
+    right: 18px;
+    transform: rotate(0deg);
+    top: 13px;
+}
+
+nav h3 {
+    font-size: 16px;
+    margin: 4px 0;
+}
+
+nav.sportlist {
+    background-color: #f7fff7;
+    border-right: 1px solid #e5e5e5;
+    font-size: 12px;
+    width: 200px;
+}
+
+nav.sportlist li:after {
+    height: 15px;
+    right: 20px;
+    top: 23px;
+    width: 15px;
+}
+
+nav.sportlist li:hover:after {
+    right: 16px;
+}
+
+nav.sportlist li.active:after {
+    right: 12px;
+}
+
+nav.sportlist li.new:after {
+    right: 15px;
+    top: 15px;
+}
+
+nav.sportlist h3 {
+    font-size: 14px;
+}
+
+main {
+    float: left;
+    padding: 0px 25px;
+}
+
+main label {
+    color: #444;
+    display: block;
+}
+
+main input, main textarea {
+    box-sizing: border-box;
+    display: block;
+    font-size: 14px;
+    margin: 2px 0 15px;
+    padding: 8px;
+    width: 250px;
+}
+
+main input[type=submit] {
+    cursor: pointer;
+}
+
+main input[type=checkbox], main input[type=radio] {
+    display: inline;
+    margin: 0;
+    margin-right: 4px;
+    width: auto;
+}
+
+main ul {
+    list-style: none;
+    padding: 0;
+    margin: 5px;
+}
+
+main ul label {
+    display: inline;
+}
+
+.error {
+    color: #C22;
+}
+
+.disconnected {
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.8);
+    bottom: 0;
+    display: flex;
+    left: 0;
+    justify-content: center;
+    position: fixed;
+    right: 0;
+    text-align: center;
+    top: 0;
+}
+
+.disconnected div {
+    background-color: white;
+    box-shadow: 0 2px 20px 5px black;
+    margin-bottom: 50px;
+    padding: 30px 50px 45px;
+}

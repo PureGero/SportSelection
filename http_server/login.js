@@ -15,4 +15,20 @@ function login(username, password, callback) {
     }
 }
 
+// The same as `login`, but for admins trying to access admin.html
+function loginAdmin(username, password, callback) {
+    // --- Replace this with your own authentication system --- //
+    
+    if (callback) {
+        let success = username.startsWith('admin') && password == 'password';
+        
+        if (success) {
+            callback(username, null);
+        } else {
+            callback(null, 'Invalid username/password');
+        }
+    }
+}
+
 module.exports = login;
+module.exports.loginAdmin = loginAdmin;

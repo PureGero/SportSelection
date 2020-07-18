@@ -1,0 +1,272 @@
+'use strict';
+
+let wsProtocol = location.protocol == 'https:' ? 'wss' : 'ws';
+let ws = new WebSocket(`${wsProtocol}://${location.host}/admin`);
+
+let groups = [];
+
+ws.onclose = () => {
+    document.querySelector('.disconnected').style.display = '';
+};
+
+ws.onerror = (error) => {
+    console.error(error);
+};
+
+ws.onmessage = (event) => {
+    let json = JSON.parse(event.data);
+
+    if (json.action == 'login') {
+        if (json.error) {
+            document.querySelector('.error').innerHTML = json.error;
+            document.querySelector('form').submit.value = 'Login';
+        } else {
+            init(json.username);
+        }
+    } else if (json.action == 'groups') {
+        groups = json.groups;
+    } else if (json.action == 'periodlist') {
+        renderPeriodList(json);
+    } else if (json.action == 'sportlist') {
+        renderSportList(json);
+    } else if (json.action == 'sportinfo') {
+        renderSportInfo(json);
+    }
+};
+
+ws.onopen = () => {
+    document.querySelector('.disconnected').style.display = 'none';
+}
+
+function send(json) {
+    ws.send(JSON.stringify(json));
+}
+
+function login(form) {
+    document.querySelector('.error').innerHTML = '';
+    
+    send({
+        action: 'login',
+        username: form.username.value,
+        password: form.password.value
+    });
+    
+    form.submit.value = 'Logging in...';
+    
+    // Disable default form action
+    return false;
+}
+
+function init(username) {
+    document.querySelector('h1').onclick = loadPeriodList;
+    document.getElementById('loginstatus').innerHTML = 'Logged in as ' + username;
+    
+    loadPeriodList();
+}
+
+function loadPeriodList() {
+    document.querySelector('.periodlist').innerHTML = '<h2 id="periodlist">Loading...</h2>';
+    document.querySelector('.sportlist').innerHTML = '';
+    document.querySelector('main').innerHTML = '<h2 id="name">Loading period list...</h2>';
+    
+    send({
+        action: 'periodlist'
+    });
+}
+
+function renderPeriodList(json) {
+    if (document.querySelector('.periodlist').innerHTML.indexOf('Loading...') >= 0) {
+        // Render main aswell
+        document.querySelector('main').innerHTML = '<h2 id="name">Select a period on the left</h2>';
+        document.querySelector('.periodlist').innerHTML = '<h2 id="periodlist" class="visuallyhidden">Period List</h2><ul></ul>';
+        
+    }
+    
+    // Update
+    let ul = document.querySelector('.periodlist').querySelector('ul');
+    
+    if (!ul.querySelector('.new')) {
+        ul.innerHTML += '<li class="new" onclick="renderCreateNewPeriod()"><h3>New Period</h3></li>';
+    }
+    
+    json.periodlist.forEach(period => {
+        let li = ul.querySelector(`.period${period.periodid}`);
+        
+        if (!li) {
+            ul.innerHTML += `<li class="period${period.periodid}" onclick="loadPeriod(${period.periodid})"><h3></h3><span class="time"></span></li>`;
+            li = ul.querySelector(`.period${period.periodid}`);
+        }
+    
+        let time;
+        
+        if (period.opens > Date.now()) {
+            time = `Opens <time class="countdown" datetime="${datetime(period.opens)}"></time>`;
+        } else if (period.closes > Date.now()) {
+            time = `Closes <time class="countdown" datetime="${datetime(period.closes)}"></time>`;
+        } else {
+            time = `Closed`;
+        }
+        
+        li.querySelector('h3').innerHTML = period.name;
+        li.querySelector('.time').innerHTML = time;
+    });
+    
+    doCountdown();
+}
+
+function loadPeriod(periodid) {
+    document.querySelector('.sportlist').innerHTML = '<h2 id="sportlist">Loading...</h2>';
+    document.querySelector('main').innerHTML = '<h2 id="name">Loading period...</h2>';
+    
+    send({
+        action: 'sportlist',
+        periodid: periodid
+    });
+}
+
+function renderSportList(json) {
+    if (document.querySelector('.sportlist').innerHTML.indexOf('Loading...') >= 0) {
+        // Render main aswell
+        document.querySelector('main').innerHTML = `
+            <form onsubmit="return submitPeriod(this)">
+                <h2 id="name" contenteditable>${json.period.name}</h2>
+                <label for="opens">Opens at:</label>
+                <input type="datetime-local" id="opens" name="opens" value="${datetimeLocal(json.period.opens).slice(0, 16)}"/>
+                <label for="closes">Closes at:</label>
+                <input type="datetime-local" id="closes" name="closes" value="${datetimeLocal(json.period.closes).slice(0, 16)}"/>
+                <label for="description">Description:</label>
+                <textarea id="description" name="description">${json.period.description}</textarea>
+                <input type="submit" id="submit" value="Save"/>
+            </form>
+            `;
+        document.querySelector('.sportlist').innerHTML = `<h2 id="sportlist" periodid="${json.period.periodid}" class="visuallyhidden">Sport List</h2><ul></ul>`;
+        
+    }
+    
+    // Update
+    let ul = document.querySelector('.sportlist').querySelector('ul');
+    
+    if (!ul.querySelector('.new')) {
+        ul.innerHTML += '<li class="new" onclick="renderCreateNewSport()"><h3>New Sport</h3></li>';
+    }
+    
+    json.sportlist.forEach(sport => {
+        let li = ul.querySelector(`.sport${sport.sportid}`);
+        
+        if (!li) {
+            ul.innerHTML += `<li class="sport${sport.sportid}" onclick="loadSport(${json.period.periodid},${sport.sportid})"><h3></h3><span class="users"></span></li>`;
+            li = ul.querySelector(`.sport${sport.sportid}`);
+        }
+        
+        li.querySelector('h3').innerHTML = sport.name;
+        li.querySelector('.users').innerHTML = `${sport.users}/${sport.maxusers} users`;
+    });
+    
+    doCountdown();
+}
+
+function loadSport(periodid, sportid) {
+    document.querySelector('main').innerHTML = '<h2 id="name">Loading sport...</h2>';
+    
+    send({
+        action: 'sportinfo',
+        periodid: periodid,
+        sportid: sportid
+    });
+}
+
+function renderSportInfo(json) {
+    let allowed = '';
+    let users = '';
+    
+    groups.forEach(group => {
+        let selected = ~json.sport.allowed.indexOf(group) ? 'checked' : '';
+        allowed += `<li><input type="checkbox" id="allowed.${group}" name="allowed.${group}" value="${group}" ${selected}/><label for="allowed.${group}">${group}</label></li>`;
+    });
+    
+    json.sport.allowed.forEach(group => {
+        if (!~groups.indexOf(group)) {
+            allowed += `<li><input type="checkbox" id="allowed.${group}" name="allowed.${group}" value="${group}" checked/><label for="allowed.${group}">${group}</label></li>`;
+        }
+    });
+    
+    json.sport.users.forEach(user => {
+        users += user + ' ';
+    });
+    
+    document.querySelector('main').innerHTML = `
+        <form onsubmit="return submitSport(this)">
+            <h2 id="name" contenteditable>${json.sport.name}</h2>
+            <input type="hidden" name="periodid" value="$(json.period.periodid)"/>
+            <label for="maxusers">Max users:</label>
+            <input type="number" id="maxusers" name="maxusers" value="${json.sport.maxusers}"/>
+            <label for="description">Description:</label>
+            <textarea id="description" name="description">${json.sport.description}</textarea>
+            <label for="allowed">Allowed groups:</label>
+            <ul id="allowed">${allowed}</ul>
+            <label for="users">Users enrolled (${json.sport.users.length}):</label>
+            <textarea id="users" name="users">${users}</textarea>
+            <input type="submit" id="submit" value="Save"/>
+        </form>
+        `;
+}
+
+function doCountdown() {
+    document.querySelectorAll('time.countdown').forEach(element => {
+        countdown(element);
+    });
+}
+
+setInterval(doCountdown, 1000);
+
+function countdown(element) {
+    let timeDiff = new Date(element.dateTime) - new Date();
+
+    element.innerHTML = prettifyTime(timeDiff);
+}
+
+function datetime(millis) {
+    return datetimeLocal(millis).replace(/-/g, "/").replace("T", " ");
+}
+
+function datetimeLocal(millis) {
+    const time = new Date(millis);
+    const offsetMs = time.getTimezoneOffset() * 60 * 1000;
+    const dateLocal = new Date(time.getTime() - offsetMs);
+    return dateLocal.toISOString().slice(0, 19);
+}
+
+function prettifyTime(millis) {
+    if (millis < 0) {
+        if (millis > -60000) {
+            return "now";
+        } else {
+            return prettifyTime(-millis).replace('in ', '') + ' ago';
+        }
+    }
+
+    var seconds = Math.floor(millis/1000);
+    var minutes = Math.floor(seconds/60);
+    var hours = Math.floor(minutes/60);
+    var days = Math.floor(hours/24);
+    
+    if (seconds < 1) {
+        return "in " + seconds + " seconds";
+    } else if (seconds < 2) {
+        return "in " + seconds + " second";
+    } else if (seconds < 60) {
+        return "in " + seconds + " seconds";
+    } else if (minutes < 2) {
+        return "in " + minutes + " minute";
+    } else if (minutes < 60) {
+        return "in " + minutes + " minutes";
+    } else if (hours < 2) {
+        return "in " + hours + " hour";
+    } else if (hours < 24) {
+        return "in " + hours + " hours";
+    } else if (days < 2) {
+        return "in " + days + " day";
+    } else {
+        return "in " + days + " days";
+    }
+}
