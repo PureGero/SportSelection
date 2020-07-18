@@ -27,17 +27,17 @@ class HttpServer {
         this.groups = {};
         this.admin = admin(this);
         
-        let httpPort = config.http.port;
-        let httpsPort = config.https.port;
+        this.httpPort = config.http.port;
+        this.httpsPort = config.https.port;
         
         let httpServer = http.createServer(!config.http.upgradeToHttps ? this.app : this.upgradeToHttps.bind(this));
 
-        httpServer.listen(httpPort, err => {
+        httpServer.listen(this.httpPort, err => {
             if (err) {
                 throw err;
             }
         
-            console.log(`Express http server listening on port ${httpPort} as worker ${process.pid}`);
+            console.log(`Express http server listening on port ${this.httpPort} as worker ${process.pid}`);
         });
         
         expressWs(this.app, httpServer);
@@ -50,12 +50,12 @@ class HttpServer {
         
             let httpsServer = https.createServer(credentials, this.app);
         
-            httpsServer.listen(httpsPort, err => {
+            httpsServer.listen(this.httpsPort, err => {
                 if (err) {
                     throw err;
                 }
         
-                console.log(`Express https server listening on port ${httpsPort} as worker ${process.pid}`);
+                console.log(`Express https server listening on port ${this.httpsPort} as worker ${process.pid}`);
             });
         
             expressWs(this.app, httpsServer);
@@ -80,8 +80,8 @@ class HttpServer {
         }
         
         // Add port
-        if (httpsPort != 443) {
-            host = host + ':' + httpsPort;
+        if (this.httpsPort != 443) {
+            host = host + ':' + this.httpsPort;
         }
         
         res.writeHead(307, {'Location': 'https://' + host + req.url});
