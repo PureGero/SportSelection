@@ -11,7 +11,7 @@ if (!fs.existsSync('config.json')) {
 
 const config = require('./config.json');
 
-const clusterWorkerSize = os.cpus().length;
+const clusterWorkerSize = 1; //os.cpus().length;
 
 if (cluster.isMaster) {
     let workers = [];
@@ -27,6 +27,8 @@ if (cluster.isMaster) {
     const DatabaseServer = require('./database_server/database_server.js');
     
     new DatabaseServer(workers);
+    
+    require('./acme-master.js')(config);
     
 } else {
     const HttpServer = require('./http_server/http_server.js');

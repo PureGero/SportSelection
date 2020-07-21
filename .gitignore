@@ -6,3 +6,4 @@ config.json
 *.crt
 *.key
 *.log
+.well-known

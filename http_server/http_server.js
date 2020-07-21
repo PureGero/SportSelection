@@ -27,10 +27,11 @@ class HttpServer {
         this.groups = {};
         this.admin = admin(this);
         
-        this.httpPort = config.http.port;
-        this.httpsPort = config.https.port;
+        this.httpPort = 80;
+        this.httpsPort = 443;
+        this.httpsServer = null;
         
-        let httpServer = http.createServer(!config.http.upgradeToHttps ? this.app : this.upgradeToHttps.bind(this));
+        let httpServer = http.createServer(this.upgradeToHttps.bind(this));
 
         httpServer.listen(this.httpPort, err => {
             if (err) {
@@ -42,32 +43,55 @@ class HttpServer {
         
         expressWs(this.app, httpServer);
         
-        try {
-            let privateKey  = fs.readFileSync(config.https.privateKey, 'utf8');
-            let certificate = fs.readFileSync(config.https.certificate, 'utf8');
-
-            let credentials = {key: privateKey, cert: certificate};
+        this.openHttpsServer();
         
-            let httpsServer = https.createServer(credentials, this.app);
+        this.setupDatabaseConnection();
+        this.setupExpress();
+    }
+    
+    openHttpsServer() {
+        if (this.httpsServer) {
+            this.httpsServer.close();
+            this.httpsServer = null;
+        }
+        
+        try {
+            let key = fs.readFileSync('privkey.pem');
+            let cert = fs.readFileSync('fullchain.pem');
+        
+            let httpsServer = https.createServer({ key, cert }, this.app);
         
             httpsServer.listen(this.httpsPort, err => {
                 if (err) {
                     throw err;
                 }
-        
+                
                 console.log(`Express https server listening on port ${this.httpsPort} as worker ${process.pid}`);
+                this.httpsServer = httpsServer;
             });
         
             expressWs(this.app, httpsServer);
         } catch (err) {
             console.error('Error while starting https server: ' + err);
         }
-        
-        this.setupDatabaseConnection();
-        this.setupExpress();
     }
     
     upgradeToHttps(req, res) {
+        if (req.url.indexOf('/.well-known/acme-challenge') == 0) {
+            return fs.readFile(req.url.substr(1), 'utf8', (err, data) => {
+                if (err) {
+                    res.end(JSON.stringify(err));
+                } else {
+                    res.end(data);
+                }
+            });
+        }
+        
+        if (!this.httpsServer) {
+            // Don't upgrade to https if it's not running
+            return this.app(req, res);
+        }
+        
         let host = req.headers.host;
         
         if (!host) {
@@ -90,7 +114,9 @@ class HttpServer {
     
     setupDatabaseConnection() {
         process.on('message', json => {
-            if (json.action == 'setcookie') {
+            if (json.action == 'restartHttps') {
+                this.openHttpsServer();
+            } else if (json.action == 'setcookie') {
                 this.cookies[json.key] = json.value;
             } else if (json.action == 'setperiods') {
                 this.periods = json.value;
