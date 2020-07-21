@@ -1,4 +1,5 @@
 {
+    "httpsEnabled": true,
     "Accept the terms and conditions of by changing 'false' to true for 'acceptToS'": 
         "https://letsencrypt.org/documents/LE-SA-v1.2-November-15-2017.pdf",
     "acceptToS": false,

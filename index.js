@@ -28,7 +28,9 @@ if (cluster.isMaster) {
     
     new DatabaseServer(workers);
     
-    require('./acme-master.js')(config);
+    if (config.httpsEnabled) {
+        require('./acme-master.js')(config);
+    }
     
 } else {
     const HttpServer = require('./http_server/http_server.js');

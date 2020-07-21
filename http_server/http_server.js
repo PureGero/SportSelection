@@ -43,7 +43,9 @@ class HttpServer {
         
         expressWs(this.app, httpServer);
         
-        this.openHttpsServer();
+        if (config.httpsEnabled) {
+            this.openHttpsServer();
+        }
         
         this.setupDatabaseConnection();
         this.setupExpress();
