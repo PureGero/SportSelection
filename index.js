@@ -11,7 +11,7 @@ if (!fs.existsSync('config.json')) {
 
 const config = require('./config.json');
 
-const clusterWorkerSize = os.cpus().length;
+let clusterWorkerSize = config.workers || os.cpus().length;
 
 if (cluster.isMaster) {
     let workers = [];
