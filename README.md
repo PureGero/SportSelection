@@ -15,10 +15,10 @@ Install the program with
 
     sudo SportSelection/install.sh
 
-Then edit the config with (be sure to set the email address and website
-hostnames).
-You'll also need to accept Let's Encrypt's terms of service for the https
-certificate (https://letsencrypt.org/documents/LE-SA-v1.2-November-15-2017.pdf).
+Then, if you want automatic HTTPS certificates, set the `email` and `hostname`
+fields in the config. You'll be accepting Let's Encrypt's terms of service to
+acquire and use the https certificate
+(https://letsencrypt.org/documents/LE-SA-v1.2-November-15-2017.pdf).
 
     vim SportSelection/config.json
 
