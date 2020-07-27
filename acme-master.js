@@ -26,6 +26,11 @@ function init(config) {
     let maintainerEmail = 'aj+acme-test@rootprojects.org'; //config.email;
     let packageAgent = 'test/v0'; //`${pkg.name}/${pkg.version}`;
 
+    if (config.email.indexOf('@example')) {
+        console.log('To setup automatic HTTPS certificates, edit config.json');
+        return;
+    }
+
     acme = acme_v2.create({ maintainerEmail, packageAgent, notify });
     
     acme.init('https://acme-v02.api.letsencrypt.org/directory').then(() => checkPrivKey(config));
@@ -86,7 +91,7 @@ function genAccount(config) {
                 checkCertificate(config);
             });
         });
-    });
+    }).catch(console.error);
 }
 
 function checkCertificate(config) {

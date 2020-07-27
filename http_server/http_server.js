@@ -27,8 +27,8 @@ class HttpServer {
         this.groups = {};
         this.admin = admin(this);
         
-        this.httpPort = 80;
-        this.httpsPort = 443;
+        this.httpPort = config.httpPort || 80;
+        this.httpsPort = config.httpsPort || 443;
         this.httpsServer = null;
         
         let httpServer = http.createServer(this.upgradeToHttps.bind(this));
@@ -58,8 +58,14 @@ class HttpServer {
         }
         
         try {
-            let key = fs.readFileSync('privkey.pem');
-            let cert = fs.readFileSync('fullchain.pem');
+            let key, cert;
+            try {
+              key = fs.readFileSync('privkey.pem');
+              cert = fs.readFileSync('fullchain.pem');
+            } catch (err) {
+              // Ignore missing certificates
+              return;
+            }
         
             let httpsServer = https.createServer({ key, cert }, this.app);
         
