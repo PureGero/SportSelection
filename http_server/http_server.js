@@ -128,6 +128,8 @@ class HttpServer {
                 this.cookies[json.key] = json.value;
             } else if (json.action == 'setperiods') {
                 this.periods = json.value;
+            } else if (json.action == 'addperiod') {
+                this.periods.push(json.value);
             } else if (json.action == 'setgroups') {
                 this.groups = json.value;
             } else if (json.action == 'setselection') {

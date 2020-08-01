@@ -114,6 +114,41 @@ function renderPeriodList(json) {
     doCountdown();
 }
 
+function renderCreateNewPeriod() {
+    document.querySelector('.sportlist').innerHTML = '';
+
+    document.querySelector('main').innerHTML = `
+        <form onsubmit="return createPeriod(this)">
+            <h2 id="name">Create new period</h2>
+            <label for="period_name">Name:</label>
+            <input type="text" id="period_name" name="period_name"/>
+            <label for="opens">Opens at:</label>
+            <input type="datetime-local" id="opens" name="opens" value="${datetimeLocal(Date.now()).slice(0, 16)}"/>
+            <label for="closes">Closes at:</label>
+            <input type="datetime-local" id="closes" name="closes" value="${datetimeLocal(Date.now() + 7 * 24 * 60 * 60 * 1000).slice(0, 16)}"/>
+            <label for="description">Description:</label>
+            <textarea id="description" name="description"></textarea>
+            <input type="submit" id="submit" value="Create"/>
+        </form>
+        `;
+    document.querySelector('#period_name').focus();
+}
+
+function createPeriod(form) {
+    send({
+        action: 'createperiod',
+        period_name: form.period_name.value,
+        opens: new Date(form.opens.value).getTime(),
+        closes: new Date(form.closes.value).getTime(),
+        description: form.description.value,
+    });
+    
+    form.submit.value = 'Creating...';
+    
+    // Disable default form action
+    return false;
+}
+
 function loadPeriod(periodid) {
     document.querySelector('.sportlist').innerHTML = '<h2 id="sportlist">Loading...</h2>';
     document.querySelector('main').innerHTML = '<h2 id="name">Loading period...</h2>';
@@ -125,7 +160,8 @@ function loadPeriod(periodid) {
 }
 
 function renderSportList(json) {
-    if (document.querySelector('.sportlist').innerHTML.indexOf('Loading...') >= 0) {
+    if (document.querySelector('.sportlist').innerHTML.length == 0 ||
+            document.querySelector('.sportlist').innerHTML.indexOf('Loading...') >= 0) {
         // Render main aswell
         document.querySelector('main').innerHTML = `
             <form onsubmit="return submitPeriod(this)">

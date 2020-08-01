@@ -122,12 +122,32 @@ class DatabaseServer {
             } else if (json.action == 'selectsport') {
                 json.success = this.addUserToSport(json.periodid, json.sportid, json.username);
                 worker.send(json);
+            } else if (json.action == 'createperiod') {
+                json.periodid = this.createPeriod(json.name, json.description, json.opens, json.closes);
+                worker.send(json);
             }
         });
     }
     
     broadcastMessage(json) {
         this.workers.forEach(worker => worker.send(json));
+    }
+
+    createPeriod(name, description, opens, closes) {
+        let period = this.clone(DEFAULT_PERIOD);
+
+        period.name = name;
+        period.description = description;
+        period.opens = opens;
+        period.closes = closes;
+
+        period.periodid = this.periods.push(period) - 1;
+        
+        this.needsSaving = true;
+
+        this.broadcastMessage({action: 'addperiod', value: period});
+
+        return period.periodid;
     }
     
     addUserToSport(periodid, sportid, username) {

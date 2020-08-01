@@ -18,6 +18,8 @@ class Admin {
                 
                 if (json.action == 'periodlist') {
                     this.sendPeriodList();
+                } else if (json.action == 'createperiod') {
+                    this.createPeriod(json.period_name, json.description, json.opens, json.closes);
                 } else if (json.action == 'sportlist') {
                     this.sendSportList(json.periodid);
                 } else if (json.action == 'sportinfo') {
@@ -72,6 +74,19 @@ class Admin {
         });
         
         this.send(json);
+    }
+
+    createPeriod(name, description, opens, closes) {
+        this.http_server.messageDatabase({
+            action: 'createperiod',
+            name: name,
+            description: description,
+            opens: opens,
+            closes: closes
+        }, json => {
+            this.sendPeriodList();
+            this.sendSportList(json.periodid);
+        });
     }
     
     sendSportList(periodid) {
