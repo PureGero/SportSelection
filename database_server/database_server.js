@@ -125,6 +125,9 @@ class DatabaseServer {
             } else if (json.action == 'createperiod') {
                 json.periodid = this.createPeriod(json.name, json.description, json.opens, json.closes);
                 worker.send(json);
+            } else if (json.action == 'createsport') {
+                json.sportid = this.createSport(json.periodid, json.name, json.description, json.maxusers, json.allowed);
+                worker.send(json);
             }
         });
     }
@@ -148,6 +151,23 @@ class DatabaseServer {
         this.broadcastMessage({action: 'addperiod', value: period});
 
         return period.periodid;
+    }
+
+    createSport(periodid, name, description, maxusers, allowed) {
+        let sport = this.clone(DEFAULT_SPORT);
+
+        sport.name = name;
+        sport.description = description;
+        sport.maxusers = maxusers;
+        sport.allowed = allowed;
+
+        sport.sportid = this.periods[periodid].sports.push(sport) - 1;
+        
+        this.needsSaving = true;
+
+        this.broadcastMessage({action: 'addsport', periodid: periodid, value: sport});
+
+        return sport.sportid;
     }
     
     addUserToSport(periodid, sportid, username) {

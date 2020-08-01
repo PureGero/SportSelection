@@ -183,7 +183,7 @@ function renderSportList(json) {
     let ul = document.querySelector('.sportlist').querySelector('ul');
     
     if (!ul.querySelector('.new')) {
-        ul.innerHTML += '<li class="new" onclick="renderCreateNewSport()"><h3>New Sport</h3></li>';
+        ul.innerHTML += `<li class="new" onclick="renderCreateNewSport(${json.period.periodid})"><h3>New Sport</h3></li>`;
     }
     
     json.sportlist.forEach(sport => {
@@ -199,6 +199,53 @@ function renderSportList(json) {
     });
     
     doCountdown();
+}
+
+function renderCreateNewSport(periodid) {
+    let allowed = '';
+    
+    groups.forEach(group => {
+        allowed += `<li><input type="checkbox" id="allowed.${group}" name="allowed.${group}" value="${group}"/><label for="allowed.${group}">${group}</label></li>`;
+    });
+
+    document.querySelector('main').innerHTML = `
+        <form onsubmit="return createSport(this)">
+            <h2 id="name">Create new sport</h2>
+            <input type="hidden" name="periodid" value="${periodid}"/>
+            <label for="sport_name">Name:</label>
+            <input type="text" id="sport_name" name="sport_name"/>
+            <label for="maxusers">Max users:</label>
+            <input type="number" id="maxusers" name="maxusers" value="25"/>
+            <label for="description">Description:</label>
+            <textarea id="description" name="description"></textarea>
+            <label for="allowed">Allowed groups:</label>
+            <ul id="allowed">${allowed}</ul>
+            <input type="submit" id="submit" value="Create"/>
+        </form>
+        `;
+    document.querySelector('#sport_name').focus();
+}
+
+function createSport(form) {
+    let allowed = [];
+
+    form.querySelectorAll('input[type=checkbox]:checked').forEach(checkbox => {
+        allowed.push(checkbox.value);
+    });
+
+    send({
+        action: 'createsport',
+        periodid: form.periodid.value,
+        sport_name: form.sport_name.value,
+        maxusers: form.maxusers.value,
+        description: form.description.value,
+        allowed: allowed,
+    });
+    
+    form.submit.value = 'Creating...';
+    
+    // Disable default form action
+    return false;
 }
 
 function loadSport(periodid, sportid) {
@@ -233,7 +280,7 @@ function renderSportInfo(json) {
     document.querySelector('main').innerHTML = `
         <form onsubmit="return submitSport(this)">
             <h2 id="name" contenteditable>${json.sport.name}</h2>
-            <input type="hidden" name="periodid" value="$(json.period.periodid)"/>
+            <input type="hidden" name="periodid" value="${json.period.periodid}"/>
             <label for="maxusers">Max users:</label>
             <input type="number" id="maxusers" name="maxusers" value="${json.sport.maxusers}"/>
             <label for="description">Description:</label>

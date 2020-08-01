@@ -18,12 +18,14 @@ class Admin {
                 
                 if (json.action == 'periodlist') {
                     this.sendPeriodList();
-                } else if (json.action == 'createperiod') {
-                    this.createPeriod(json.period_name, json.description, json.opens, json.closes);
                 } else if (json.action == 'sportlist') {
                     this.sendSportList(json.periodid);
                 } else if (json.action == 'sportinfo') {
                     this.sendSportInfo(json.periodid, json.sportid);
+                } else if (json.action == 'createperiod') {
+                    this.createPeriod(json.period_name, json.description, json.opens, json.closes);
+                } else if (json.action == 'createsport') {
+                    this.createSport(json.periodid, json.sport_name, json.description, json.maxusers, json.allowed);
                 }
             }
         });
@@ -75,19 +77,6 @@ class Admin {
         
         this.send(json);
     }
-
-    createPeriod(name, description, opens, closes) {
-        this.http_server.messageDatabase({
-            action: 'createperiod',
-            name: name,
-            description: description,
-            opens: opens,
-            closes: closes
-        }, json => {
-            this.sendPeriodList();
-            this.sendSportList(json.periodid);
-        });
-    }
     
     sendSportList(periodid) {
         let period = this.http_server.periods[periodid];
@@ -128,6 +117,33 @@ class Admin {
         }};
         
         this.send(json);
+    }
+
+    createPeriod(name, description, opens, closes) {
+        this.http_server.messageDatabase({
+            action: 'createperiod',
+            name: name,
+            description: description,
+            opens: opens,
+            closes: closes
+        }, json => {
+            this.sendPeriodList();
+            this.sendSportList(json.periodid);
+        });
+    }
+
+    createSport(periodid, name, description, maxusers, allowed) {
+        this.http_server.messageDatabase({
+            action: 'createsport',
+            periodid: periodid,
+            name: name,
+            description: description,
+            maxusers: maxusers,
+            allowed: allowed
+        }, json => {
+            this.sendSportList(periodid);
+            this.sendSportInfo(periodid, json.sportid);
+        });
     }
 }
 

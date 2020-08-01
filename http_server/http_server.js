@@ -130,6 +130,8 @@ class HttpServer {
                 this.periods = json.value;
             } else if (json.action == 'addperiod') {
                 this.periods.push(json.value);
+            } else if (json.action == 'addsport') {
+                this.periods[json.periodid].sports.push(json.value);
             } else if (json.action == 'setgroups') {
                 this.groups = json.value;
             } else if (json.action == 'setselection') {

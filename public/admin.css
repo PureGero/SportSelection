@@ -177,9 +177,10 @@ main input[type=checkbox], main input[type=radio] {
 }
 
 main ul {
+    columns: 2;
     list-style: none;
-    padding: 0;
     margin: 5px;
+    padding: 0;
 }
 
 main ul label {
