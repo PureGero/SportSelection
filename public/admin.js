@@ -79,7 +79,6 @@ function renderPeriodList(json) {
         // Render main aswell
         document.querySelector('main').innerHTML = '<h2 id="name">Select a period on the left</h2>';
         document.querySelector('.periodlist').innerHTML = '<h2 id="periodlist" class="visuallyhidden">Period List</h2><ul></ul>';
-        
     }
     
     // Update
@@ -116,6 +115,12 @@ function renderPeriodList(json) {
 
 function renderCreateNewPeriod() {
     document.querySelector('.sportlist').innerHTML = '';
+
+    document.querySelector('.periodlist').querySelectorAll('.active').forEach(period => {
+        period.classList.remove('active');
+    });
+
+    document.querySelector('.periodlist').querySelector('.new').classList.add('active');
 
     document.querySelector('main').innerHTML = `
         <form onsubmit="return createPeriod(this)">
@@ -166,6 +171,7 @@ function renderSportList(json) {
         document.querySelector('main').innerHTML = `
             <form onsubmit="return submitPeriod(this)">
                 <h2 id="name" contenteditable>${json.period.name}</h2>
+                <input type="hidden" name="periodid" value="${json.period.periodid}"/>
                 <label for="opens">Opens at:</label>
                 <input type="datetime-local" id="opens" name="opens" value="${datetimeLocal(json.period.opens).slice(0, 16)}"/>
                 <label for="closes">Closes at:</label>
@@ -177,6 +183,11 @@ function renderSportList(json) {
             `;
         document.querySelector('.sportlist').innerHTML = `<h2 id="sportlist" periodid="${json.period.periodid}" class="visuallyhidden">Sport List</h2><ul></ul>`;
         
+        document.querySelector('.periodlist').querySelectorAll('.active').forEach(period => {
+            period.classList.remove('active');
+        });
+
+        document.querySelector('.periodlist').querySelector(`.period${json.period.periodid}`).classList.add('active');
     }
     
     // Update
@@ -207,6 +218,12 @@ function renderCreateNewSport(periodid) {
     groups.forEach(group => {
         allowed += `<li><input type="checkbox" id="allowed.${group}" name="allowed.${group}" value="${group}"/><label for="allowed.${group}">${group}</label></li>`;
     });
+
+    document.querySelector('.sportlist').querySelectorAll('.active').forEach(period => {
+        period.classList.remove('active');
+    });
+
+    document.querySelector('.sportlist').querySelector('.new').classList.add('active');
 
     document.querySelector('main').innerHTML = `
         <form onsubmit="return createSport(this)">
@@ -276,11 +293,18 @@ function renderSportInfo(json) {
     json.sport.users.forEach(user => {
         users += user + ' ';
     });
+
+    document.querySelector('.sportlist').querySelectorAll('.active').forEach(period => {
+        period.classList.remove('active');
+    });
+
+    document.querySelector('.sportlist').querySelector(`.sport${json.sport.sportid}`).classList.add('active');
     
     document.querySelector('main').innerHTML = `
         <form onsubmit="return submitSport(this)">
             <h2 id="name" contenteditable>${json.sport.name}</h2>
             <input type="hidden" name="periodid" value="${json.period.periodid}"/>
+            <input type="hidden" name="sportid" value="${json.sport.sportid}"/>
             <label for="maxusers">Max users:</label>
             <input type="number" id="maxusers" name="maxusers" value="${json.sport.maxusers}"/>
             <label for="description">Description:</label>
