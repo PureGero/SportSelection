@@ -57,6 +57,8 @@ class DatabaseServer {
                 }
                 
                 period.sports.forEach((sport, sportid) => {
+                    sport.sportid = sportid;
+
                     for (let key in DEFAULT_SPORT) {
                         if (!sport[key]) {
                             sport[key] = this.clone(DEFAULT_SPORT[key]);
