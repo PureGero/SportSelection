@@ -129,9 +129,9 @@ class HttpServer {
             } else if (json.action == 'setperiods') {
                 this.periods = json.value;
             } else if (json.action == 'addperiod') {
-                this.periods.push(json.value);
+                this.periods[json.value.periodid] = json.value;
             } else if (json.action == 'addsport') {
-                this.periods[json.periodid].sports.push(json.value);
+                this.periods[json.periodid].sports[json.value.sportid] = json.value;
             } else if (json.action == 'setgroups') {
                 this.groups = json.value;
             } else if (json.action == 'setselection') {

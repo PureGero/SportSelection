@@ -128,6 +128,12 @@ class DatabaseServer {
             } else if (json.action == 'createsport') {
                 json.sportid = this.createSport(json.periodid, json.name, json.description, json.maxusers, json.allowed);
                 worker.send(json);
+            } else if (json.action == 'updateperiod') {
+                this.updatePeriod(json.periodid, json.name, json.description, json.opens, json.closes);
+                worker.send(json);
+            } else if (json.action == 'updatesport') {
+                this.updateSport(json.periodid, json.sportid, json.name, json.description, json.maxusers, json.allowed);
+                worker.send(json);
             }
         });
     }
@@ -168,6 +174,32 @@ class DatabaseServer {
         this.broadcastMessage({action: 'addsport', periodid: periodid, value: sport});
 
         return sport.sportid;
+    }
+
+    updatePeriod(periodid, name, description, opens, closes) {
+        let period = this.periods[periodid];
+
+        period.name = name;
+        period.description = description;
+        period.opens = opens;
+        period.closes = closes;
+        
+        this.needsSaving = true;
+
+        this.broadcastMessage({action: 'addperiod', value: period});
+    }
+
+    updateSport(periodid, sportid, name, description, maxusers, allowed) {
+        let sport = this.periods[periodid].sports[sportid];
+
+        sport.name = name;
+        sport.description = description;
+        sport.maxusers = maxusers;
+        sport.allowed = allowed;
+        
+        this.needsSaving = true;
+
+        this.broadcastMessage({action: 'addsport', periodid: periodid, value: sport});
     }
     
     addUserToSport(periodid, sportid, username) {

@@ -23,9 +23,13 @@ class Admin {
                 } else if (json.action == 'sportinfo') {
                     this.sendSportInfo(json.periodid, json.sportid);
                 } else if (json.action == 'createperiod') {
-                    this.createPeriod(json.period_name, json.description, json.opens, json.closes);
+                    this.createPeriod(json.name, json.description, json.opens, json.closes);
                 } else if (json.action == 'createsport') {
-                    this.createSport(json.periodid, json.sport_name, json.description, json.maxusers, json.allowed);
+                    this.createSport(json.periodid, json.name, json.description, json.maxusers, json.allowed);
+                } else if (json.action == 'updateperiod') {
+                    this.updatePeriod(json.periodid, json.name, json.description, json.opens, json.closes);
+                } else if (json.action == 'updatesport') {
+                    this.updateSport(json.periodid, json.sportid, json.name, json.description, json.maxusers, json.allowed);
                 }
             }
         });
@@ -143,6 +147,35 @@ class Admin {
         }, json => {
             this.sendSportList(periodid);
             this.sendSportInfo(periodid, json.sportid);
+        });
+    }
+
+    updatePeriod(periodid, name, description, opens, closes) {
+        this.http_server.messageDatabase({
+            action: 'updateperiod',
+            periodid: periodid,
+            name: name,
+            description: description,
+            opens: opens,
+            closes: closes
+        }, json => {
+            this.sendPeriodList();
+            this.sendSportList(periodid);
+        });
+    }
+
+    updateSport(periodid, sportid, name, description, maxusers, allowed) {
+        this.http_server.messageDatabase({
+            action: 'updatesport',
+            periodid: periodid,
+            sportid: sportid,
+            name: name,
+            description: description,
+            maxusers: maxusers,
+            allowed: allowed
+        }, json => {
+            this.sendSportList(periodid);
+            this.sendSportInfo(periodid, sportid);
         });
     }
 }

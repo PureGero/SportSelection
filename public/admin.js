@@ -142,7 +142,7 @@ function renderCreateNewPeriod() {
 function createPeriod(form) {
     send({
         action: 'createperiod',
-        period_name: form.period_name.value,
+        name: form.period_name.value,
         opens: new Date(form.opens.value).getTime(),
         closes: new Date(form.closes.value).getTime(),
         description: form.description.value,
@@ -212,6 +212,24 @@ function renderSportList(json) {
     doCountdown();
 }
 
+function submitPeriod(form) {
+    send({
+        action: 'updateperiod',
+        periodid: form.periodid.value,
+        name: form.querySelector('#name').innerText,
+        opens: new Date(form.opens.value).getTime(),
+        closes: new Date(form.closes.value).getTime(),
+        description: form.description.value,
+    });
+    
+    form.submit.value = 'Saving...';
+
+    document.querySelector('.sportlist').innerHTML = '';
+    
+    // Disable default form action
+    return false;
+}
+
 function renderCreateNewSport(periodid) {
     let allowed = '';
     
@@ -253,7 +271,7 @@ function createSport(form) {
     send({
         action: 'createsport',
         periodid: form.periodid.value,
-        sport_name: form.sport_name.value,
+        name: form.sport_name.value,
         maxusers: form.maxusers.value,
         description: form.description.value,
         allowed: allowed,
@@ -316,6 +334,29 @@ function renderSportInfo(json) {
             <input type="submit" id="submit" value="Save"/>
         </form>
         `;
+}
+
+function submitSport(form) {
+    let allowed = [];
+
+    form.querySelectorAll('input[type=checkbox]:checked').forEach(checkbox => {
+        allowed.push(checkbox.value);
+    });
+
+    send({
+        action: 'updatesport',
+        periodid: form.periodid.value,
+        sportid: form.sportid.value,
+        name: form.querySelector('#name').innerText,
+        maxusers: form.maxusers.value,
+        description: form.description.value,
+        allowed: allowed,
+    });
+    
+    form.submit.value = 'Saving...';
+    
+    // Disable default form action
+    return false;
 }
 
 function doCountdown() {
