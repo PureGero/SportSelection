@@ -26,7 +26,7 @@ function init(config) {
     let maintainerEmail = 'aj+acme-test@rootprojects.org'; //config.email;
     let packageAgent = 'test/v0'; //`${pkg.name}/${pkg.version}`;
 
-    if (config.email.indexOf('@example')) {
+    if (~config.email.indexOf('@example')) {
         console.log('To setup automatic HTTPS certificates, edit config.json');
         return;
     }
