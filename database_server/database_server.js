@@ -7,6 +7,7 @@ fs.mkdir('data', err => {
 let DEFAULT_PERIOD = {
     name: 'Unnamed selection period',
     description: '',
+    owner: '',
     opens: 0,
     closes: 0,
     sports: [],
@@ -125,7 +126,7 @@ class DatabaseServer {
                 json.success = this.addUserToSport(json.periodid, json.sportid, json.username);
                 worker.send(json);
             } else if (json.action == 'createperiod') {
-                json.periodid = this.createPeriod(json.name, json.description, json.opens, json.closes);
+                json.periodid = this.createPeriod(json.name, json.description, json.opens, json.closes, json.owner);
                 worker.send(json);
             } else if (json.action == 'createsport') {
                 json.sportid = this.createSport(json.periodid, json.name, json.description, json.maxusers, json.allowed);
@@ -144,13 +145,14 @@ class DatabaseServer {
         this.workers.forEach(worker => worker.send(json));
     }
 
-    createPeriod(name, description, opens, closes) {
+    createPeriod(name, description, opens, closes, owner) {
         let period = this.clone(DEFAULT_PERIOD);
 
         period.name = name;
         period.description = description;
         period.opens = opens;
         period.closes = closes;
+        period.owner = owner;
 
         period.periodid = this.periods.push(period) - 1;
         

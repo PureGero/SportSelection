@@ -23,7 +23,7 @@ class Admin {
                 } else if (json.action == 'sportinfo') {
                     this.sendSportInfo(json.periodid, json.sportid);
                 } else if (json.action == 'createperiod') {
-                    this.createPeriod(json.name, json.description, json.opens, json.closes);
+                    this.createPeriod(json.name, json.description, json.opens, json.closes, this.username);
                 } else if (json.action == 'createsport') {
                     this.createSport(json.periodid, json.name, json.description, json.maxusers, json.allowed);
                 } else if (json.action == 'updateperiod') {
@@ -71,6 +71,9 @@ class Admin {
         let json = {action: 'periodlist', periodlist: []};
         
         this.http_server.periods.forEach((period, index) => {
+            // Do they have access to this period?
+            if (this.username != 'root' && this.username != period.owner) return;
+
             json.periodlist.push({
                 periodid: index,
                 name: period.name,
@@ -123,13 +126,14 @@ class Admin {
         this.send(json);
     }
 
-    createPeriod(name, description, opens, closes) {
+    createPeriod(name, description, opens, closes, owner) {
         this.http_server.messageDatabase({
             action: 'createperiod',
             name: name,
             description: description,
             opens: opens,
-            closes: closes
+            closes: closes,
+            owner: owner
         }, json => {
             this.sendPeriodList();
             this.sendSportList(json.periodid);
