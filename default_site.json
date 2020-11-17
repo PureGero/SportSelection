@@ -1,0 +1,9 @@
+{
+    "__README__": "To set customise the design for a host, rename this file like example.com.json",
+
+    "%title%": "Sport Selection",
+    "%background%": "background.jpg",
+
+    "dark_color": "#0034ff",
+    "light_color": "#0094ff"
+}

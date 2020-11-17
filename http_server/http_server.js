@@ -30,6 +30,8 @@ class HttpServer {
         this.httpPort = config.httpPort || 80;
         this.httpsPort = config.httpsPort || 443;
         this.httpsServer = null;
+
+        this.sitesCache = {};
         
         let httpServer = http.createServer(this.upgradeToHttps.bind(this));
 
@@ -174,6 +176,7 @@ class HttpServer {
         
         this.app.ws('/admin', this.admin);
     
+        this.app.use(this.publicFiles.bind(this));
         this.app.use(express.static('public'));
     }
     
@@ -190,6 +193,58 @@ class HttpServer {
         this.messageDatabase({action: 'clustertest', string: 'Hello'}, json => {
             res.send(json.string);
         });
+    }
+
+    publicFiles(req, res, next) {
+        let file = req.path;
+
+        if (file == '/') file = '/index.html';
+
+        let type = file.substr(file.lastIndexOf('.') + 1).toLowerCase();
+
+        if (~['html', 'css', 'js'].indexOf(type)) {
+            return fs.readFile(path.join('public', file), 'utf8', (err, data) => {
+                if (err) {
+                    return next();
+                }
+
+                res.type(type)
+                this.getSite(req.headers.host.toLowerCase(), site => this.parseFile(req, res, data, site));
+            });
+        }
+
+        next();
+    }
+
+    /**
+     * Get the site json for the specified host.
+     * Searches for jsons in order www.example.com -> example.com -> com -> default_site
+     * Caches results
+     */
+    getSite(host, callback) {
+        if (!host) host = 'default_site';
+
+        if (host in this.sitesCache) {
+            return callback(this.sitesCache[host]);
+        }
+
+        fs.readFile(host + '.json', 'utf8', (err, data) => {
+            if (err) {
+                if (host == 'default_site') {
+                    return callback(this.sitesCache[host] = {});
+                }
+
+                return this.getSite(host.substr(host.indexOf('.') + 1 || host.length), site => callback(this.sitesCache[host] = site));
+            }
+
+            callback(this.sitesCache[host] = JSON.parse(data));
+        });
+    }
+
+    parseFile(req, res, data, site) {
+        data = data.replace(new RegExp(Object.keys(site).join('|'), 'g'), matched => site[matched]);
+
+        res.end(data)
     }
     
     serverinfo(req, res) {

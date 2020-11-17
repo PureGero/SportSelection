@@ -24,7 +24,7 @@ html, body {
 .background {
     width: calc(100% + 20px);
     height: calc(100% + 20px);
-    background: url('background.jpg') no-repeat center/cover;
+    background: url('%background%') no-repeat center/cover;
     filter: blur(5px);
     margin: -10px;
 }
@@ -38,7 +38,7 @@ html, body {
 }
 
 .login__title {
-    color: #0034ff;
+    color: dark_color;
     display: inline-block;
     font-size: 32px;
     margin: 0 auto 10px;
@@ -78,18 +78,18 @@ html, body {
 }
 
 .login__input:focus, .selection:focus {
-    border: 1px solid #0094ff;
-    box-shadow: 0 0 0 1px #0094ff;
+    border: 1px solid light_color;
+    box-shadow: 0 0 0 1px light_color;
 }
 
 .login__input--button {
-    background-color: #0034ff;
+    background-color: dark_color;
     color: white;
     transition-duration: 0.3s;
 }
 
 .login__input--button:hover, .login__input--button:focus {
-    background-color: #0094ff;
+    background-color: light_color;
     cursor: pointer;
 }
 
@@ -138,12 +138,12 @@ html, body {
 }
 
 .selection:hover {
-    background-color: #0034ff;
+    background-color: dark_color;
     color: white;
 }
 
 .selection--selected, .selection--selected:hover {
-    background-color: #0094ff;
+    background-color: light_color;
     color: white;
     cursor: initial;
 }
