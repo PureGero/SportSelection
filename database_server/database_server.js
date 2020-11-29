@@ -84,7 +84,7 @@ class DatabaseServer {
                 return console.error(err);
             }
             
-            setGroups(JSON.parse(data));
+            this.setGroups(JSON.parse(data));
             
             console.log('Loaded groups');
         });
