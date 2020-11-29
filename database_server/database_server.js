@@ -84,12 +84,16 @@ class DatabaseServer {
                 return console.error(err);
             }
             
-            this.groups = JSON.parse(data);
-        
-            this.broadcastMessage({action: 'setgroups', value: this.groups});
+            setGroups(JSON.parse(data));
             
             console.log('Loaded groups');
         });
+    }
+
+    setGroups(groups) {
+        this.groups = groups;
+        
+        this.broadcastMessage({action: 'setgroups', value: this.groups});
     }
     
     writeToDisk() {
