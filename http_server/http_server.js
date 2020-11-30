@@ -209,7 +209,7 @@ class HttpServer {
                 }
 
                 res.type(type)
-                this.getSite(req.headers.host.toLowerCase(), site => this.parseFile(req, res, data, site));
+                this.getSite(req.headers.host, site => this.parseFile(req, res, data, site));
             });
         }
 
@@ -223,6 +223,8 @@ class HttpServer {
      */
     getSite(host, callback) {
         if (!host) host = 'default_site';
+
+        host = host.toLowerCase();
 
         if (host in this.sitesCache) {
             return callback(this.sitesCache[host]);
