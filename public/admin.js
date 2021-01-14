@@ -234,7 +234,8 @@ function renderCreateNewSport(periodid) {
     let allowed = '';
     
     groups.forEach(group => {
-        allowed += `<li><input type="checkbox" id="allowed.${group}" name="allowed.${group}" value="${group}"/><label for="allowed.${group}">${group}</label></li>`;
+        const groupName = ~group.indexOf('_') ? group.substr(group.indexOf('_') + 1) : group;
+        allowed += `<li><input type="checkbox" id="allowed.${group}" name="allowed.${group}" value="${group}"/><label for="allowed.${group}">${groupName}</label></li>`;
     });
 
     document.querySelector('.sportlist').querySelectorAll('.active').forEach(period => {
@@ -298,13 +299,16 @@ function renderSportInfo(json) {
     let users = '';
     
     groups.forEach(group => {
-        let selected = ~json.sport.allowed.indexOf(group) ? 'checked' : '';
-        allowed += `<li><input type="checkbox" id="allowed.${group}" name="allowed.${group}" value="${group}" ${selected}/><label for="allowed.${group}">${group}</label></li>`;
+        // Remove the username prefix from the group name
+        const groupName = ~group.indexOf('_') ? group.substr(group.indexOf('_') + 1) : group;
+        const selected = ~json.sport.allowed.indexOf(group) ? 'checked' : '';
+        allowed += `<li><input type="checkbox" id="allowed.${group}" name="allowed.${group}" value="${group}" ${selected}/><label for="allowed.${group}">${groupName}</label></li>`;
     });
     
     json.sport.allowed.forEach(group => {
         if (!~groups.indexOf(group)) {
-            allowed += `<li><input type="checkbox" id="allowed.${group}" name="allowed.${group}" value="${group}" checked/><label for="allowed.${group}">${group}</label></li>`;
+            const groupName = ~group.indexOf('_') ? group.substr(group.indexOf('_') + 1) : group;
+            allowed += `<li><input type="checkbox" id="allowed.${group}" name="allowed.${group}" value="${group}" checked/><label for="allowed.${group}">${groupName}</label></li>`;
         }
     });
     
