@@ -144,6 +144,9 @@ class DatabaseServer {
             } else if (json.action == 'deletesport') {
                 this.deleteSport(json.periodid, json.sportid);
                 worker.send(json);
+            } else if (json.action == 'deleteuser') {
+                this.deleteUser(json.periodid, json.sportid, json.user);
+                worker.send(json);
             }
         });
     }
@@ -254,6 +257,14 @@ class DatabaseServer {
         sport.deleted = true;
         
         this.needsSaving = true;
+
+        this.broadcastMessage({action: 'addsport', periodid: periodid, value: sport});
+    }
+
+    deleteUser(periodid, sportid, user) {
+        let sport = this.periods[periodid].sports[sportid];
+
+        sport.users = sport.users.filter(u => u != user);
 
         this.broadcastMessage({action: 'addsport', periodid: periodid, value: sport});
     }

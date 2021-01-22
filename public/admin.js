@@ -296,7 +296,6 @@ function loadSport(periodid, sportid) {
 
 function renderSportInfo(json) {
     let allowed = '';
-    let users = '';
     
     groups.forEach(group => {
         // Remove the username prefix from the group name
@@ -310,10 +309,6 @@ function renderSportInfo(json) {
             const groupName = ~group.indexOf('_') ? group.substr(group.indexOf('_') + 1) : group;
             allowed += `<li><input type="checkbox" id="allowed.${group}" name="allowed.${group}" value="${group}" checked/><label for="allowed.${group}">${groupName}</label></li>`;
         }
-    });
-    
-    json.sport.users.forEach(user => {
-        users += user + ' ';
     });
 
     document.querySelector('.sportlist').querySelectorAll('.active').forEach(period => {
@@ -334,11 +329,18 @@ function renderSportInfo(json) {
             <label for="allowed">Allowed groups:</label>
             <ul id="allowed">${allowed}</ul>
             <label for="users">Users enrolled (${json.sport.users.length}):</label>
-            <textarea id="users" name="users">${users}</textarea>
+            <div id="users">
+                ${json.sport.users.map(renderUser).join('\n')}
+            </div>
+            <p></p>
             <button id="submit">Save <i class="fas fa-save"></i></button>
             <button onclick="deleteSport(this)" id="delete" class="delete" type="button">Delete <i class="fas fa-trash-alt"></i></button>
         </form>
         `;
+}
+
+function renderUser(user) {
+    return `<div class="user">${user} <button onclick="deleteUser(this, '${user}')" class="fas fa-minus-circle fa-lg" title="Remove ${user} from sport"></button></div>`;
 }
 
 function submitSport(form) {
@@ -368,7 +370,7 @@ function deleteSport(button) {
     let form = button.form;
 
     if (!confirm(`Are you sure you want to delete ${form.querySelector('#name').innerText}?`)) {
-        return false;
+        return;
     }
 
     send({
@@ -379,9 +381,23 @@ function deleteSport(button) {
 
     document.querySelector('.sportlist').innerHTML = '<h2 id="sportlist">Loading...</h2>';
     document.querySelector('main').innerHTML = '<h2 id="name">Deleting sport...</h2>';
+}
+
+function deleteUser(button, user) {
+    let form = button.form;
+
+    if (!confirm(`Are you sure you want to delete ${user} from ${form.querySelector('#name').innerText}?`)) {
+        return;
+    }
+
+    send({
+        action: 'deleteuser',
+        periodid: form.periodid.value,
+        sportid: form.sportid.value,
+        user: user
+    });
     
-    // Disable default form action
-    return false;
+    form.submit.innerText = 'Deleting...';
 }
 
 function doCountdown() {

@@ -32,6 +32,8 @@ class Admin {
                     this.updateSport(json.periodid, json.sportid, json.name, json.description, json.maxusers, json.allowed);
                 } else if (json.action == 'deletesport') {
                     this.deleteSport(json.periodid, json.sportid);
+                } else if (json.action == 'deleteuser') {
+                    this.deleteUser(json.periodid, json.sportid, json.user);
                 }
             }
         });
@@ -194,6 +196,18 @@ class Admin {
             sportid: sportid
         }, json => {
             this.sendSportList(periodid);
+        });
+    }
+
+    deleteUser(periodid, sportid, user) {
+        this.http_server.messageDatabase({
+            action: 'deleteuser',
+            periodid: periodid,
+            sportid: sportid,
+            user: user
+        }, json => {
+            this.sendSportList(periodid);
+            this.sendSportInfo(periodid, sportid);
         });
     }
 }
