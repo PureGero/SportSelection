@@ -265,7 +265,9 @@ class DatabaseServer {
         let sport = this.periods[periodid].sports[sportid];
 
         sport.users = sport.users.filter(u => u != user);
+        delete this.periods[periodid].selections[user];
 
+        this.broadcastMessage({action: 'removeselection', periodid: periodid, sportid: sportid, user: user});
         this.broadcastMessage({action: 'addsport', periodid: periodid, value: sport});
     }
 };
