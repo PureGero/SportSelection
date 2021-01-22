@@ -390,9 +390,9 @@ class HttpServer {
     isAllowedInSport(username, sport) {
         let mygroups = this.groups[username];
         
-        return ~sport.allowed.indexOf(username) || (mygroups && mygroups.some(group => {
+        return !sport.deleted && (~sport.allowed.indexOf(username) || (mygroups && mygroups.some(group => {
             return ~sport.allowed.indexOf(group);
-        }));
+        })));
     }
     
     addSportToList(sportlist, sport, sportid, selected) {

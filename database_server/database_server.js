@@ -141,6 +141,9 @@ class DatabaseServer {
             } else if (json.action == 'updatesport') {
                 this.updateSport(json.periodid, json.sportid, json.name, json.description, json.maxusers, json.allowed);
                 worker.send(json);
+            } else if (json.action == 'deletesport') {
+                this.deleteSport(json.periodid, json.sportid);
+                worker.send(json);
             }
         });
     }
@@ -243,6 +246,16 @@ class DatabaseServer {
         this.broadcastMessage({action: 'setselection', periodid: periodid, sportid: sportid, user: username});
         
         return true;
+    }
+
+    deleteSport(periodid, sportid) {
+        let sport = this.periods[periodid].sports[sportid];
+
+        sport.deleted = true;
+        
+        this.needsSaving = true;
+
+        this.broadcastMessage({action: 'addsport', periodid: periodid, value: sport});
     }
 };
 

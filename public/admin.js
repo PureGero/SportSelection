@@ -336,6 +336,7 @@ function renderSportInfo(json) {
             <label for="users">Users enrolled (${json.sport.users.length}):</label>
             <textarea id="users" name="users">${users}</textarea>
             <button id="submit">Save <i class="fas fa-save"></i></button>
+            <button onclick="deleteSport(this)" id="delete" class="delete" type="button">Delete <i class="fas fa-trash-alt"></i></button>
         </form>
         `;
 }
@@ -358,6 +359,26 @@ function submitSport(form) {
     });
     
     form.submit.innerText = 'Saving...';
+    
+    // Disable default form action
+    return false;
+}
+
+function deleteSport(button) {
+    let form = button.form;
+
+    if (!confirm(`Are you sure you want to delete ${form.querySelector('#name').innerText}?`)) {
+        return false;
+    }
+
+    send({
+        action: 'deletesport',
+        periodid: form.periodid.value,
+        sportid: form.sportid.value
+    });
+
+    document.querySelector('.sportlist').innerHTML = '<h2 id="sportlist">Loading...</h2>';
+    document.querySelector('main').innerHTML = '<h2 id="name">Deleting sport...</h2>';
     
     // Disable default form action
     return false;

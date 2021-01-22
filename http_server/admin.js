@@ -30,6 +30,8 @@ class Admin {
                     this.updatePeriod(json.periodid, json.name, json.description, json.opens, json.closes);
                 } else if (json.action == 'updatesport') {
                     this.updateSport(json.periodid, json.sportid, json.name, json.description, json.maxusers, json.allowed);
+                } else if (json.action == 'deletesport') {
+                    this.deleteSport(json.periodid, json.sportid);
                 }
             }
         });
@@ -97,12 +99,14 @@ class Admin {
         }};
         
         period.sports.forEach((sport, index) => {
-            json.sportlist.push({
-                sportid: index,
-                name: sport.name,
-                maxusers: sport.maxusers,
-                users: sport.users.length
-            });
+            if (!sport.deleted) {
+                json.sportlist.push({
+                    sportid: index,
+                    name: sport.name,
+                    maxusers: sport.maxusers,
+                    users: sport.users.length
+                });
+            }
         });
         
         this.send(json);
@@ -180,6 +184,16 @@ class Admin {
         }, json => {
             this.sendSportList(periodid);
             this.sendSportInfo(periodid, sportid);
+        });
+    }
+
+    deleteSport(periodid, sportid) {
+        this.http_server.messageDatabase({
+            action: 'deletesport',
+            periodid: periodid,
+            sportid: sportid
+        }, json => {
+            this.sendSportList(periodid);
         });
     }
 }

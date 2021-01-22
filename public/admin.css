@@ -189,6 +189,17 @@ main ul label {
     display: inline;
 }
 
+.delete {
+    background-color: #f44336;
+    border: 2px solid #f44336;
+    color: white;
+    opacity: 0.9;
+}
+
+.delete:hover {
+    opacity: 1;
+}
+
 .error {
     color: #C22;
 }
