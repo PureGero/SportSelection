@@ -156,7 +156,9 @@ main label {
     display: block;
 }
 
-main input, main textarea {
+main input,
+main textarea,
+main button {
     box-sizing: border-box;
     display: block;
     font-size: 14px;
@@ -165,7 +167,7 @@ main input, main textarea {
     width: 250px;
 }
 
-main input[type=submit] {
+main button {
     cursor: pointer;
 }
 

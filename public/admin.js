@@ -19,7 +19,7 @@ ws.onmessage = (event) => {
     if (json.action == 'login') {
         if (json.error) {
             document.querySelector('.error').innerHTML = json.error;
-            document.querySelector('form').submit.value = 'Login';
+            document.querySelector('form').submit.innerText = 'Login';
         } else {
             init(json.username);
         }
@@ -51,7 +51,7 @@ function login(form) {
         password: form.password.value
     });
     
-    form.submit.value = 'Logging in...';
+    form.submit.innerText = 'Logging in...';
     
     // Disable default form action
     return false;
@@ -133,7 +133,7 @@ function renderCreateNewPeriod() {
             <input type="datetime-local" id="closes" name="closes" value="${datetimeLocal(Date.now() + 7 * 24 * 60 * 60 * 1000).slice(0, 16)}"/>
             <label for="description">Description:</label>
             <textarea id="description" name="description"></textarea>
-            <input type="submit" id="submit" value="Create"/>
+            <button id="submit">Create <i class="fas fa-plus-square"></i></button>
         </form>
         `;
     document.querySelector('#period_name').focus();
@@ -148,7 +148,7 @@ function createPeriod(form) {
         description: form.description.value,
     });
     
-    form.submit.value = 'Creating...';
+    form.submit.innerText = 'Creating...';
     
     // Disable default form action
     return false;
@@ -178,7 +178,7 @@ function renderSportList(json) {
                 <input type="datetime-local" id="closes" name="closes" value="${datetimeLocal(json.period.closes).slice(0, 16)}"/>
                 <label for="description">Description:</label>
                 <textarea id="description" name="description">${json.period.description}</textarea>
-                <input type="submit" id="submit" value="Save"/>
+                <button id="submit">Save <i class="fas fa-save"></i></button>
             </form>
             `;
         document.querySelector('.sportlist').innerHTML = `<h2 id="sportlist" periodid="${json.period.periodid}" class="visuallyhidden">Sport List</h2><ul></ul>`;
@@ -222,7 +222,7 @@ function submitPeriod(form) {
         description: form.description.value,
     });
     
-    form.submit.value = 'Saving...';
+    form.submit.innerText = 'Saving...';
 
     document.querySelector('.sportlist').innerHTML = '';
     
@@ -256,7 +256,7 @@ function renderCreateNewSport(periodid) {
             <textarea id="description" name="description"></textarea>
             <label for="allowed">Allowed groups:</label>
             <ul id="allowed">${allowed}</ul>
-            <input type="submit" id="submit" value="Create"/>
+            <button id="submit">Create <i class="fas fa-plus-square"></i></button>
         </form>
         `;
     document.querySelector('#sport_name').focus();
@@ -278,7 +278,7 @@ function createSport(form) {
         allowed: allowed,
     });
     
-    form.submit.value = 'Creating...';
+    form.submit.innerText = 'Creating...';
     
     // Disable default form action
     return false;
@@ -335,7 +335,7 @@ function renderSportInfo(json) {
             <ul id="allowed">${allowed}</ul>
             <label for="users">Users enrolled (${json.sport.users.length}):</label>
             <textarea id="users" name="users">${users}</textarea>
-            <input type="submit" id="submit" value="Save"/>
+            <button id="submit">Save <i class="fas fa-save"></i></button>
         </form>
         `;
 }
@@ -357,7 +357,7 @@ function submitSport(form) {
         allowed: allowed,
     });
     
-    form.submit.value = 'Saving...';
+    form.submit.innerText = 'Saving...';
     
     // Disable default form action
     return false;
