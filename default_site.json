@@ -3,6 +3,7 @@
 
     "%title%": "Sport Selection",
     "%background%": "background.jpg",
+    "%favicon%": "favicon.ico",
 
     "dark_color": "#0034ff",
     "light_color": "#0094ff"
