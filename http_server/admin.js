@@ -34,6 +34,8 @@ class Admin {
                     this.deleteSport(json.periodid, json.sportid);
                 } else if (json.action == 'deleteuser') {
                     this.deleteUser(json.periodid, json.sportid, json.user);
+                } else if (json.action == 'downloadselections') {
+                    this.downloadSelections(json.periodid);
                 }
             }
         });
@@ -209,6 +211,19 @@ class Admin {
             this.sendSportList(periodid);
             this.sendSportInfo(periodid, sportid);
         });
+    }
+
+    downloadSelections(periodid) {
+        const period = this.http_server.periods[periodid];
+        
+        const selections = Object.entries(period.selections).map(([student, sportid]) => ({
+            student,
+            sportName: period.sports[sportid].name
+        }));
+
+        const csv = selections.map(v => `${v.student},${v.sportName}`).join('\n');
+        
+        this.send({ action: 'selectionsdownload', name: period.name, csv });
     }
 }
 

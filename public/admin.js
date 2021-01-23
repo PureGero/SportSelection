@@ -31,6 +31,8 @@ ws.onmessage = (event) => {
         renderSportList(json);
     } else if (json.action == 'sportinfo') {
         renderSportInfo(json);
+    } else if (json.action == 'selectionsdownload') {
+        downloadSelectionsCsv(json.name, json.csv);
     }
 };
 
@@ -179,6 +181,7 @@ function renderSportList(json) {
                 <label for="description">Description:</label>
                 <textarea id="description" name="description">${json.period.description}</textarea>
                 <button id="submit">Save <i class="fas fa-save"></i></button>
+                <button onclick="downloadSelections(this)" id="download" class="download" type="button">Download Selections <i class="fas fa-download"></i></button>
             </form>
             `;
         document.querySelector('.sportlist').innerHTML = `<h2 id="sportlist" periodid="${json.period.periodid}" class="visuallyhidden">Sport List</h2><ul></ul>`;
@@ -210,6 +213,28 @@ function renderSportList(json) {
     });
     
     doCountdown();
+}
+
+function downloadSelections(button) {
+    const form = button.form;
+
+    send({
+        action: 'downloadselections',
+        periodid: form.periodid.value
+    });
+    
+    form.download.innerText = 'Downloading...';
+}
+
+function downloadSelectionsCsv(name, csv) {
+    const blob = new Blob([csv], {type: 'text/csv'});
+    const link = document.createElement('a');
+    link.href = window.URL.createObjectURL(blob);
+    link.download = name + '.csv';
+    link.innerHTML = 'Download ' + name;
+    link.click();
+
+    document.querySelector('.download').innerText = 'Downloaded';
 }
 
 function submitPeriod(form) {
