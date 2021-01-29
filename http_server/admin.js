@@ -218,8 +218,11 @@ class Admin {
         
         const selections = Object.entries(period.selections).map(([student, sportid]) => ({
             student,
+            sportid,
             sportName: period.sports[sportid].name
         }));
+
+        selections.sort((a, b) => a.sportid - b.sportid);
 
         const csv = selections.map(v => `${v.student},${v.sportName}`).join('\n');
         
